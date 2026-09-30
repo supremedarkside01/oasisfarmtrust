@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Farm Trust — Admin Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--danger-dark:#7f0000;--danger:#b71c1c;--danger-mid:#c62828;--card-bg:rgba(255,255,255,0.96);--glass-red:rgba(100,0,0,0.65);--shadow:0 8px 40px rgba(0,0,0,0.35);--shadow-sm:0 4px 16px rgba(0,0,0,0.15);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#0d0a0a;min-height:100vh;overflow-x:hidden;}
+.bg-scene{position:fixed;inset:0;z-index:0;overflow:hidden;}
+.bg-scene svg{width:100%;height:100%;position:absolute;inset:0;}
+#login-screen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-card{background:rgba(15,8,8,0.9);backdrop-filter:blur(28px);border:1px solid rgba(220,50,50,0.25);border-radius:24px;padding:44px 44px 36px;width:420px;max-width:100%;box-shadow:0 24px 80px rgba(180,0,0,0.3);text-align:center;}
+.login-emblem{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#7f0000,#b71c1c);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 18px;box-shadow:0 0 32px rgba(200,0,0,0.35);}
+.login-card h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#f5d0d0;margin-bottom:4px;}
+.login-card .subtitle{font-size:12px;color:rgba(245,180,180,0.45);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.login-divider{height:1px;background:rgba(220,50,50,0.2);margin:20px 0;}
+.demo-note{background:rgba(212,168,48,0.15);border:1px solid rgba(212,168,48,0.35);border-radius:10px;padding:9px 14px;font-size:11.5px;color:#e8c878;margin-bottom:16px;text-align:left;}
+.login-warning{background:rgba(180,0,0,0.18);border:1px solid rgba(220,50,50,0.3);border-radius:10px;padding:10px 14px;font-size:11.5px;color:rgba(255,180,180,0.7);line-height:1.5;margin-bottom:20px;text-align:left;}
+.login-warning strong{color:#ef9a9a;}
+.form-group{margin-bottom:14px;text-align:left;}
+.form-label{display:block;font-size:11px;font-weight:600;color:rgba(220,150,150,0.7);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid rgba(180,50,50,0.3);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:#f5d0d0;background:rgba(255,255,255,0.05);outline:none;}
+.form-input::placeholder{color:rgba(245,180,180,0.25);}
+.form-input:focus{border-color:rgba(200,50,50,0.7);background:rgba(255,255,255,0.08);}
+.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,#7f0000,#b71c1c);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;}
+.login-btn:hover{background:linear-gradient(135deg,#6d0000,#9b0000);}
+.login-error{color:#ef9a9a;font-size:12px;margin-top:10px;display:none;}
+.login-footer{margin-top:20px;font-size:11px;color:rgba(220,150,150,0.3);line-height:1.6;}
+#admin-app{display:none;position:relative;z-index:1;min-height:100vh;}
+.sidebar{width:260px;min-height:100vh;background:var(--glass-red);backdrop-filter:blur(20px);border-right:1px solid rgba(200,50,50,0.15);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10;}
+.logo-area{padding:26px 22px 18px;border-bottom:1px solid rgba(200,50,50,0.15);}
+.logo-badge{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#7f0000,#c62828);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;box-shadow:0 4px 16px rgba(180,0,0,0.3);}
+.logo-area h1{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#f5d0d0;line-height:1.2;}
+.logo-area p{font-size:10px;color:rgba(245,180,180,0.4);margin-top:3px;letter-spacing:0.5px;text-transform:uppercase;}
+.access-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(180,0,0,0.3);border:1px solid rgba(220,50,50,0.3);border-radius:6px;padding:3px 9px;font-size:10px;color:#ef9a9a;font-weight:600;letter-spacing:0.5px;margin-top:8px;}
+.nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
+.nav-section-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(245,180,180,0.3);padding:10px 12px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;cursor:pointer;color:rgba(245,180,180,0.55);font-size:13px;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:rgba(200,50,50,0.15);color:#f5d0d0;}
+.nav-item.active{background:rgba(200,50,50,0.25);color:#ef9a9a;font-weight:500;border:1px solid rgba(200,50,50,0.2);}
+.nav-item .icon{font-size:16px;width:18px;text-align:center;}
+.sidebar-footer{padding:14px 10px;border-top:1px solid rgba(200,50,50,0.15);}
+.user-card{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7f0000,#c62828);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:white;flex-shrink:0;}
+.user-info strong{display:block;font-size:12px;font-weight:500;color:#f5d0d0;}
+.user-info span{font-size:10px;color:rgba(245,180,180,0.35);}
+.main{margin-left:260px;padding:32px;min-height:100vh;}
+.page{display:none;} .page.active{display:block;}
+.topbar{display:flex;align-items:center;justify-content:space-between;background:rgba(100,0,0,0.35);backdrop-filter:blur(16px);border:1px solid rgba(200,50,50,0.15);border-radius:14px;padding:12px 20px;margin-bottom:28px;}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.topbar-left span{font-size:13px;color:rgba(245,180,180,0.55);}
+.topbar-left strong{font-size:13px;color:#f5d0d0;font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#ef9a9a;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.page-header{margin-bottom:24px;}
+.page-header h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#f5d0d0;}
+.page-header p{font-size:12px;color:rgba(245,180,180,0.4);margin-top:4px;}
+.card{background:var(--card-bg);border-radius:18px;padding:22px;box-shadow:var(--shadow-sm);}
+.card-dark{background:rgba(80,10,10,0.5);backdrop-filter:blur(16px);border:1px solid rgba(200,50,50,0.15);border-radius:18px;padding:22px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.stat-card{background:var(--card-bg);border-radius:14px;padding:18px;box-shadow:var(--shadow-sm);}
+.stat-label{font-size:10px;color:#6b3a3a;letter-spacing:0.5px;text-transform:uppercase;font-weight:600;}
+.stat-value{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#3a1010;margin-top:4px;}
+.stat-sub{font-size:11px;color:#8b5050;margin-top:3px;}
+.admin-banner{background:linear-gradient(135deg,#7f0000 0%,#5d0a0a 100%);border-radius:14px;padding:16px 22px;display:flex;align-items:center;gap:14px;margin-bottom:24px;border:1px solid rgba(220,50,50,0.3);}
+.admin-banner-icon{font-size:26px;flex-shrink:0;}
+.admin-banner h3{font-size:14px;font-weight:600;color:#fdd;}
+.admin-banner p{font-size:11.5px;color:rgba(255,200,200,0.6);margin-top:2px;}
+.form-group-light{margin-bottom:16px;}
+.form-label-light{display:block;font-size:11px;font-weight:600;color:#7f3a3a;margin-bottom:5px;letter-spacing:0.3px;text-transform:uppercase;}
+.form-input-light{width:100%;padding:10px 13px;border:1.5px solid #e8d4d4;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13.5px;color:#3a1010;background:white;outline:none;}
+.form-input-light:focus{border-color:#c62828;}
+.form-input-light[readonly]{background:#fdf5f5;color:#8b5050;}
+.input-group{position:relative;}
+.input-prefix{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:13px;color:#8b5050;font-weight:500;}
+.input-group .form-input-light{padding-left:24px;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;border:none;}
+.btn-danger{background:var(--danger-mid);color:white;} .btn-danger:hover{background:var(--danger);}
+.btn-outline{background:transparent;color:#3a1010;border:1.5px solid rgba(180,50,50,0.25);} .btn-outline:hover{background:rgba(180,50,50,0.06);}
+.btn-ghost{background:rgba(255,255,255,0.1);color:#f5d0d0;border:1px solid rgba(200,50,50,0.2);} .btn-ghost:hover{background:rgba(255,255,255,0.16);}
+.btn-sm{padding:7px 13px;font-size:12px;} .btn-full{width:100%;justify-content:center;}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{text-align:left;padding:9px 13px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#8b5050;border-bottom:1.5px solid #f0d8d8;}
+.data-table td{padding:12px 13px;font-size:13px;color:#3a1010;border-bottom:1px solid #fbeaea;}
+.data-table tr:hover td{background:#fdf5f5;}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;}
+.badge-red{background:#ffebee;color:#c62828;} .badge-green{background:#e8f5e9;color:#2e7d32;}
+.badge-amber{background:#fff8e1;color:#f57f17;} .badge-blue{background:#e3f2fd;color:#1565c0;}
+.badge-gray{background:#f5f5f5;color:#616161;} .badge-purple{background:#ede7f6;color:#4527a0;}
+.section-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#3a1010;margin-bottom:14px;}
+.section-title-light{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#f5d0d0;margin-bottom:14px;}
+.divider{height:1px;background:#f0d8d8;margin:18px 0;}
+.member-result{background:#fdf5f5;border:1.5px solid #f0d8d8;border-radius:12px;padding:16px;margin-top:14px;display:none;}
+.member-result.visible{display:block;}
+.member-name{font-size:16px;font-weight:600;color:#3a1010;}
+.member-meta{font-size:12px;color:#8b5050;margin-top:2px;}
+.toast{position:fixed;bottom:24px;right:24px;background:#3a0808;color:#f5d0d0;padding:12px 18px;border-radius:11px;font-size:13px;display:flex;align-items:center;gap:9px;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s ease;box-shadow:0 8px 32px rgba(180,0,0,0.35);border:1px solid rgba(200,50,50,0.25);max-width:380px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.flex{display:flex;} .items-center{align-items:center;} .justify-between{justify-content:space-between;}
+.gap-2{gap:8px;} .gap-3{gap:12px;} .flex-1{flex:1;} .mb-4{margin-bottom:16px;} .mb-6{margin-bottom:24px;}
+.text-right{text-align:right;}
+.no-user-banner{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:10px 14px;font-size:12px;color:#e65100;margin-bottom:16px;}
+</style>
+</head>
+<body>
+
+<div class="bg-scene">
+<svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyG" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#0d0000"/><stop offset="100%" style="stop-color:#1a0808"/></linearGradient>
+    <linearGradient id="groundG" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#120000"/><stop offset="100%" style="stop-color:#080000"/></linearGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#skyG)"/>
+  <circle cx="120" cy="80" r="1" fill="#ffd0d0" opacity="0.5"/><circle cx="340" cy="45" r="1.5" fill="#ffaaaa" opacity="0.4"/>
+  <circle cx="1100" cy="120" r="38" fill="#6d0000" opacity="0.85"/><circle cx="1090" cy="112" r="30" fill="#8b0000" opacity="0.6"/>
+  <rect x="0" y="700" width="1440" height="200" fill="url(#groundG)"/>
+  <ellipse cx="200" cy="690" rx="340" ry="110" fill="#0f0000" opacity="0.9"/>
+  <ellipse cx="700" cy="705" rx="380" ry="95" fill="#0a0000" opacity="0.95"/>
+  <ellipse cx="1200" cy="680" rx="310" ry="120" fill="#0f0000" opacity="0.9"/>
+  <rect x="55" y="310" width="14" height="390" fill="#080000" rx="3"/>
+  <ellipse cx="62" cy="345" rx="52" ry="68" fill="#100000"/>
+  <rect x="1372" y="330" width="14" height="370" fill="#080000" rx="3"/>
+  <ellipse cx="1379" cy="365" rx="50" ry="64" fill="#100000"/>
+  <rect x="0" y="580" width="1440" height="320" fill="#1a0000" opacity="0.45"/>
+</svg>
+</div>
+
+<div class="toast" id="toast"><span id="toast-icon">✅</span><span id="toast-msg">Action completed</span></div>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-emblem">🔐</div>
+    <h1>Global Farm Trust</h1>
+    <p class="subtitle">Admin Portal — Restricted Access</p>
+    <div class="login-divider"></div>
+    <div class="demo-note">🎓 <strong>Demo mode:</strong> password is set to <code>0000</code> for sandbox testing only. Do not use this pattern in a real banking system.</div>
+    <div class="login-warning"><strong>⚠️ Authorised Personnel Only</strong><br>This system is restricted to Global Farm Trust staff. All access is logged. Unauthorised access is an offence under the <em>Federal Reserve Act</em>.</div>
+    <div class="form-group"><label class="form-label">Staff ID</label><input class="form-input" type="text" id="login-username" placeholder="e.g. MW-0042" autocomplete="off"></div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-password" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="form-group"><label class="form-label">Access Level</label><select class="form-input" id="login-role" style="appearance:none"><option value="manager">Branch Manager</option><option value="teller">Senior Teller</option><option value="loans">Loans Officer</option><option value="compliance">Compliance Officer</option></select></div>
+    <button class="login-btn" onclick="doLogin()">Sign In to Admin Portal</button>
+    <div class="login-error" id="login-error">❌ Invalid credentials. Please try again.</div>
+    <div class="login-footer">Global Farm Trust Admin Portal v3.3 · © 2026 Global Farm Trust Bank EIN 47-2938104</div>
+  </div>
+</div>
+
+<div id="admin-app">
+  <div style="display:flex">
+    <nav class="sidebar">
+      <div class="logo-area">
+        <div class="logo-badge">🦘</div>
+        <h1>Global Farm Trust<br>Admin Portal</h1>
+        <p>Staff Back-end System</p>
+        <div class="access-badge">🔴 RESTRICTED ACCESS</div>
+      </div>
+      <div class="nav">
+        <p class="nav-section-label">Overview</p>
+        <button class="nav-item active" onclick="showPage('overview',this)"><span class="icon">📊</span> Dashboard</button>
+        <button class="nav-item" onclick="showPage('members',this)"><span class="icon">👤</span> Member Lookup</button>
+        <p class="nav-section-label">Account Management</p>
+        <button class="nav-item" onclick="showPage('balances',this)"><span class="icon">💰</span> Balance Editor</button>
+        <button class="nav-item" onclick="showPage('loans',this)"><span class="icon">🌱</span> Loan Editor</button>
+        <button class="nav-item" onclick="showPage('grants',this)"><span class="icon">🌳</span> Grants Editor</button>
+        <button class="nav-item" onclick="showPage('rates',this)"><span class="icon">📈</span> Rate Editor</button>
+        <button class="nav-item" onclick="showPage('points',this)"><span class="icon">🦎</span> Wildlife Points Editor</button>
+        <button class="nav-item" onclick="showPage('crypto',this)"><span class="icon">₿</span> Crypto Wallet Editor</button>
+        <p class="nav-section-label">System</p>
+        <button class="nav-item" onclick="showPage('transactions',this)"><span class="icon">📋</span> Transaction Posting</button>
+        <button class="nav-item" onclick="showPage('alerts',this)"><span class="icon">🔔</span> Push Alert to Member</button>
+        <button class="nav-item" onclick="showPage('audit',this)"><span class="icon">🗂️</span> Audit Log</button>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-card"><div class="avatar" id="sidebar-avatar">MW</div><div class="user-info"><strong id="sidebar-name">M. Williams</strong><span id="sidebar-role">Branch Manager</span></div></div>
+        <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px" onclick="doLogout()">🚪 Sign Out</button>
+      </div>
+    </nav>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left"><div class="live-dot"></div><span>Admin session active ·</span><strong id="topbar-name">M. Williams</strong><span>·</span><strong id="topbar-role" style="color:#ef9a9a">Branch Manager</strong></div>
+        <div class="topbar-right"><span style="font-size:12px;color:rgba(245,180,180,0.4)" id="session-clock"></span><button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button></div>
+      </div>
+
+      <!-- OVERVIEW -->
+      <div class="page active" id="page-overview">
+        <div class="page-header"><h2>🔐 Admin Overview</h2><p>Global Farm Trust back-end — account management & operations</p></div>
+        <div class="admin-banner"><span class="admin-banner-icon">⚠️</span><div><h3>Restricted Access — Staff Only</h3><p>All actions are logged and audited. Unauthorised access is a criminal offence under the Federal Reserve Act.</p></div></div>
+        <div id="no-member-banner" class="no-user-banner" style="display:none">⚠️ No active member session detected. Open <code>wildlife_fcu_login.html</code> and sign in as a member in another tab, then come back here to edit their figures.</div>
+        <div class="grid-4 mb-6">
+          <div class="stat-card"><div class="stat-label">Member Status</div><div class="stat-value" id="ov-member-status" style="font-size:18px">—</div><div class="stat-sub" id="ov-member-id">No session</div></div>
+          <div class="stat-card"><div class="stat-label">Total Balance</div><div class="stat-value" id="ov-total-balance">$0.00</div><div class="stat-sub">All accounts combined</div></div>
+          <div class="stat-card"><div class="stat-label">Total Loans</div><div class="stat-value" id="ov-total-loans">$0.00</div><div class="stat-sub">Outstanding</div></div>
+          <div class="stat-card"><div class="stat-label">Wildlife Points</div><div class="stat-value" id="ov-points">0</div><div class="stat-sub">Member credits</div></div>
+        </div>
+        <div class="card">
+          <div class="section-title mb-4">Recent Admin Activity</div>
+          <table class="data-table"><thead><tr><th>Time</th><th>Field</th><th>Old</th><th>New</th></tr></thead><tbody id="overview-audit-body"></tbody></table>
+        </div>
+      </div>
+
+      <!-- MEMBER LOOKUP -->
+      <div class="page" id="page-members">
+        <div class="page-header"><h2>👤 Member Lookup</h2><p>View the currently signed-in member's full profile</p></div>
+        <div class="card">
+          <div id="ml-empty" class="no-user-banner">No member is currently logged in. Sign in to the member app first.</div>
+          <div id="ml-content" style="display:none">
+            <div class="flex justify-between items-center mb-4">
+              <div class="flex items-center gap-3">
+                <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#5a7a3a,#4a9080);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:white" id="ml-avatar">JK</div>
+                <div><div class="member-name" id="ml-name">—</div><div class="member-meta" id="ml-meta">—</div></div>
+              </div>
+              <span class="badge badge-green">Active Session</span>
+            </div>
+            <div class="grid-3">
+              <div style="background:#fdf5f5;border-radius:10px;padding:12px"><div style="font-size:10px;color:#8b5050;text-transform:uppercase;font-weight:600">USD Savings Account</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#3a1010;margin-top:4px" id="ml-savings">$0.00</div></div>
+              <div style="background:#fdf5f5;border-radius:10px;padding:12px"><div style="font-size:10px;color:#8b5050;text-transform:uppercase;font-weight:600">Farm Business USD</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#3a1010;margin-top:4px" id="ml-farm">$0.00</div></div>
+              <div style="background:#fdf5f5;border-radius:10px;padding:12px"><div style="font-size:10px;color:#8b5050;text-transform:uppercase;font-weight:600">USD Term Deposit</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#3a1010;margin-top:4px" id="ml-term">$0.00</div></div>
+            </div>
+            <div class="divider"></div>
+            <div class="flex gap-2">
+              <button class="btn btn-danger btn-sm" onclick="showPage('balances', document.querySelectorAll('.nav-item')[2])">Edit Balances</button>
+              <button class="btn btn-outline btn-sm" onclick="showPage('loans', document.querySelectorAll('.nav-item')[3])">Edit Loans</button>
+              <button class="btn btn-outline btn-sm" onclick="showPage('grants', document.querySelectorAll('.nav-item')[4])">Edit Grants</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BALANCE EDITOR -->
+      <div class="page" id="page-balances">
+        <div class="page-header"><h2>💰 Balance Editor</h2><p>Directly modify any member account balance</p></div>
+        <div id="bal-no-member" class="no-user-banner" style="display:none">No member logged in — sign in to the member app first.</div>
+        <div class="admin-banner"><span class="admin-banner-icon">⚠️</span><div><h3>Direct Balance Modification</h3><p>Bypasses normal transaction flow. All changes are audit-logged and apply instantly to the member's app.</p></div></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="section-title mb-4">Edit Account Balance</div>
+            <div class="form-group-light"><label class="form-label-light">Account</label>
+              <select class="form-input-light" id="bal-account" onchange="updateBalCurrent()">
+                <option value="savings">USD Savings Account</option>
+                <option value="farm">Farm Business USD</option>
+                <option value="term">USD Term Deposit</option>
+              </select>
+            </div>
+            <div class="form-group-light"><label class="form-label-light">Current Balance</label><div class="input-group"><span class="input-prefix">$</span><input class="form-input-light" type="text" id="bal-current" readonly></div></div>
+            <div class="form-group-light"><label class="form-label-light">New Balance (USD)</label><div class="input-group"><span class="input-prefix">$</span><input class="form-input-light" type="number" id="bal-new" placeholder="Enter new balance" step="0.01"></div></div>
+            <div class="form-group-light"><label class="form-label-light">Note</label><input class="form-input-light" type="text" id="bal-note" placeholder="e.g. Error correction"></div>
+            <button class="btn btn-danger btn-full" onclick="applyBalanceAdj()">Apply Balance Change</button>
+          </div>
+          <div class="card">
+            <div class="section-title mb-4">Balance Change History</div>
+            <table class="data-table"><thead><tr><th>When</th><th>Account</th><th>Old</th><th>New</th></tr></thead><tbody id="bal-history-body"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOAN EDITOR -->
+      <div class="page" id="page-loans">
+        <div class="page-header"><h2>🌱 Loan Editor</h2><p>Edit loan balances, rates, terms, and status</p></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="section-title mb-4">Edit Loan</div>
+            <div class="form-group-light"><label class="form-label-light">Loan</label>
+              <select class="form-input-light" id="loan-select" onchange="updateLoanFields()">
+                <option value="l004">Starter Farm Loan (GFT-L004)</option>
+                <option value="l007">Equipment Finance (GFT-L007)</option>
+              </select>
+            </div>
+            <div class="form-group-light"><label class="form-label-light">Outstanding Balance</label><div class="input-group"><span class="input-prefix">$</span><input class="form-input-light" type="number" id="loan-balance" step="0.01"></div></div>
+            <div class="form-group-light"><label class="form-label-light">Interest Rate (% p.a.)</label><input class="form-input-light" type="number" id="loan-rate" step="0.01"></div>
+            <div class="form-group-light"><label class="form-label-light">Term (years)</label><input class="form-input-light" type="number" id="loan-term"></div>
+            <div class="form-group-light"><label class="form-label-light">Status</label>
+              <select class="form-input-light" id="loan-status"><option>None</option><option>Pending</option><option>Active</option><option>Approved</option><option>Declined</option><option>Paid Off</option></select>
+            </div>
+            <button class="btn btn-danger btn-full" onclick="applyLoanEdit()">Save Loan Changes</button>
+          </div>
+          <div class="card">
+            <div class="section-title mb-4">Current Loan Snapshot</div>
+            <table class="data-table"><thead><tr><th>Loan</th><th>Balance</th><th>Rate</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Starter Farm Loan</td><td id="snap-l004-bal">$0.00</td><td id="snap-l004-rate">0%</td><td id="snap-l004-status">None</td></tr>
+              <tr><td>Equipment Finance</td><td id="snap-l007-bal">$0.00</td><td id="snap-l007-rate">0%</td><td id="snap-l007-status">None</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRANTS EDITOR -->
+      <div class="page" id="page-grants">
+        <div class="page-header"><h2>🌳 Grants Editor</h2><p>Edit grant figures and disburse to member accounts</p></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="section-title mb-4">Set Grant Figures</div>
+            <div class="form-group-light"><label class="form-label-light">Grants Received (Total)</label><div class="input-group"><span class="input-prefix">$</span><input class="form-input-light" type="number" id="grant-received" step="0.01"></div></div>
+            <div class="form-group-light"><label class="form-label-light">Grants Pending</label><div class="input-group"><span class="input-prefix">$</span><input class="form-input-light" type="number" id="grant-pending" step="0.01"></div></div>
+            <button class="btn btn-danger btn-full" onclick="applyGrantEdit()">Save Grant Figures</button>
+          </div>
+          <div class="card">
+            <div class="section-title mb-4">Disburse Grant to Account</div>
+            <div class="form-group-light"><label class="form-label-light">Credit to Account</label>
+              <select class="form-input-light" id="grant-disburse-account"><option value="savings">USD Savings Account</option><option value="farm">Farm Business USD</option></select>
+            </div>
+            <div class="form-group-light"><label class="form-label-light">Amount (USD)</label><div class="input-group"><span class="input-prefix">$</span><input class="form-input-light" type="number" id="grant-disburse-amount" step="0.01"></div></div>
+            <div class="form-group-light"><label class="form-label-light">Program Name</label><input class="form-input-light" type="text" id="grant-program-name" placeholder="e.g. United Statesn Farming Grant 2026"></div>
+            <button class="btn btn-danger btn-full" onclick="disburseGrant()">Disburse Grant</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RATE EDITOR -->
+      <div class="page" id="page-rates">
+        <div class="page-header"><h2>📈 Rate Editor</h2><p>Edit interest rates for any account</p></div>
+        <div class="card">
+          <div class="section-title mb-4">Edit Account Interest Rate</div>
+          <div class="grid-2">
+            <div class="form-group-light"><label class="form-label-light">Account</label>
+              <select class="form-input-light" id="rate-account" onchange="updateRateCurrent()">
+                <option value="savings">USD Savings Account</option>
+                <option value="farm">Farm Business USD</option>
+                <option value="term">USD Term Deposit</option>
+              </select>
+            </div>
+            <div class="form-group-light"><label class="form-label-light">New Rate (% p.a.)</label><input class="form-input-light" type="number" id="rate-new" step="0.01"></div>
+          </div>
+          <button class="btn btn-danger" onclick="applyRateEdit()">Apply Rate Change</button>
+        </div>
+      </div>
+
+      <!-- WILDLIFE POINTS EDITOR -->
+      <div class="page" id="page-points">
+        <div class="page-header"><h2>🦎 Wildlife Points Editor</h2><p>Adjust member wildlife credit points</p></div>
+        <div class="card">
+          <div class="section-title mb-4">Set Wildlife Points</div>
+          <div class="form-group-light"><label class="form-label-light">Current Points</label><input class="form-input-light" type="text" id="points-current" readonly></div>
+          <div class="form-group-light"><label class="form-label-light">New Points Total</label><input class="form-input-light" type="number" id="points-new" placeholder="Enter new total"></div>
+          <button class="btn btn-danger" onclick="applyPointsEdit()">Update Points</button>
+        </div>
+      </div>
+
+      <!-- CRYPTO WALLET EDITOR -->
+      <div class="page" id="page-crypto">
+        <div class="page-header"><h2>₿ Crypto Wallet Editor</h2><p>Edit member crypto balances and inject on-chain transactions</p></div>
+        <div class="admin-banner"><span class="admin-banner-icon">⚠️</span><div><h3>Crypto Balance Editor</h3><p>Changes apply instantly to the member's Crypto Wallet page. Wallet addresses are fixed and cannot be changed here.</p></div></div>
+        <div class="grid-2 mb-6">
+          <div class="card">
+            <div class="section-title mb-4">Edit Crypto Balances</div>
+            <!-- BTC -->
+            <div style="margin-bottom:16px;padding:14px;background:#fffbf5;border:1px solid #ffe0b2;border-radius:12px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:18px">₿</span><strong style="color:#e65100">Bitcoin (BTC)</strong></div>
+              <div class="form-group-light">
+                <label class="form-label-light">BTC Balance</label>
+                <div class="input-group"><span class="input-prefix" style="color:#f7931a">₿</span><input class="form-input-light" type="number" id="admin-btc-bal" step="0.00000001" placeholder="0.00000000"></div>
+              </div>
+              <div style="font-size:11px;color:#8b5050;font-family:monospace">Wallet: bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50</div>
+            </div>
+            <!-- ETH -->
+            <div style="margin-bottom:16px;padding:14px;background:#f5f5ff;border:1px solid #c5cae9;border-radius:12px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:18px">Ξ</span><strong style="color:#3949ab">Ethereum (ETH)</strong></div>
+              <div class="form-group-light">
+                <label class="form-label-light">ETH Balance</label>
+                <div class="input-group"><span class="input-prefix" style="color:#627eea">Ξ</span><input class="form-input-light" type="number" id="admin-eth-bal" step="0.000001" placeholder="0.000000"></div>
+              </div>
+              <div style="font-size:11px;color:#8b5050;font-family:monospace">Wallet: 0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3</div>
+            </div>
+            <!-- SOL -->
+            <div style="margin-bottom:18px;padding:14px;background:#f8f5ff;border:1px solid #d1c4e9;border-radius:12px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:18px">◎</span><strong style="color:#6a1b9a">Solana (SOL)</strong></div>
+              <div class="form-group-light">
+                <label class="form-label-light">SOL Balance</label>
+                <div class="input-group"><span class="input-prefix" style="color:#9945ff">◎</span><input class="form-input-light" type="number" id="admin-sol-bal" step="0.000001" placeholder="0.000000"></div>
+              </div>
+              <div style="font-size:11px;color:#8b5050;font-family:monospace">Wallet: F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci</div>
+            </div>
+            <button class="btn btn-danger btn-full" onclick="applyCryptoEdit()">Save All Crypto Balances</button>
+          </div>
+          <div class="card">
+            <div class="section-title mb-4">Inject On-Chain Transaction</div>
+            <div class="form-group-light"><label class="form-label-light">Coin</label>
+              <select class="form-input-light" id="admin-inject-coin">
+                <option value="btc">₿ Bitcoin (BTC)</option>
+                <option value="eth">Ξ Ethereum (ETH)</option>
+                <option value="sol">◎ Solana (SOL)</option>
+              </select>
+            </div>
+            <div class="form-group-light"><label class="form-label-light">Type</label>
+              <select class="form-input-light" id="admin-inject-type">
+                <option value="receive">Receive (inbound)</option>
+                <option value="send">Send (outbound)</option>
+              </select>
+            </div>
+            <div class="form-group-light"><label class="form-label-light">Amount</label>
+              <input class="form-input-light" type="number" id="admin-inject-amount" step="0.000001" placeholder="e.g. 0.05">
+            </div>
+            <div class="form-group-light"><label class="form-label-light">Counterparty Address</label>
+              <input class="form-input-light" type="text" id="admin-inject-addr" placeholder="Sender or recipient address">
+            </div>
+            <div class="form-group-light"><label class="form-label-light">USD Value (at time of tx)</label>
+              <div class="input-group"><span class="input-prefix">$</span><input class="form-input-light" type="number" id="admin-inject-aud" step="0.01" placeholder="0.00"></div>
+            </div>
+            <button class="btn btn-danger btn-full" onclick="injectCryptoTx()">Inject Transaction</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title mb-4">Current Crypto Balances (Live)</div>
+          <table class="data-table">
+            <thead><tr><th>Coin</th><th>Balance</th><th>Wallet Address</th><th>Network</th></tr></thead>
+            <tbody id="crypto-snapshot-body">
+              <tr><td colspan="4" style="text-align:center;color:#8b5050;padding:20px">No member session detected</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TRANSACTION POSTING -->
+      <div class="page" id="page-transactions">
+        <div class="page-header"><h2>📋 Manual Transaction Posting</h2><p>Post a transaction directly into the member's transaction history</p></div>
+        <div class="card">
+          <div class="section-title mb-4">Post Transaction</div>
+          <div class="grid-2">
+            <div>
+              <div class="form-group-light"><label class="form-label-light">Account</label><select class="form-input-light" id="ptx-account"><option value="savings">USD Savings Account</option><option value="farm">Farm Business USD</option></select></div>
+              <div class="form-group-light"><label class="form-label-light">Type</label><select class="form-input-light" id="ptx-type"><option value="credit">Credit (deposit)</option><option value="debit">Debit (withdrawal)</option></select></div>
+              <div class="form-group-light"><label class="form-label-light">Category</label><select class="form-input-light" id="ptx-category"><option>Farm</option><option>Livestock</option><option>Equipment</option><option>Income</option><option>Grant</option><option>Loan</option><option>Insurance</option><option>Utilities</option><option>Other</option></select></div>
+            </div>
+            <div>
+              <div class="form-group-light"><label class="form-label-light">Amount</label><div class="input-group"><span class="input-prefix">$</span><input class="form-input-light" type="number" id="ptx-amount" placeholder="0.00"></div></div>
+              <div class="form-group-light"><label class="form-label-light">Description</label><input class="form-input-light" type="text" id="ptx-desc" placeholder="Transaction narrative"></div>
+            </div>
+          </div>
+          <button class="btn btn-danger" onclick="postTransaction()">Post Transaction</button>
+        </div>
+      </div>
+
+      <!-- PUSH ALERT -->
+      <div class="page" id="page-alerts">
+        <div class="page-header"><h2>🔔 Push Alert to Member</h2><p>Send a notification that appears in the member's Alerts page</p></div>
+        <div class="card">
+          <div class="section-title mb-4">Compose Alert</div>
+          <div class="form-group-light"><label class="form-label-light">Type</label><select class="form-input-light" id="alert-type"><option value="info">Info</option><option value="success">Success</option><option value="warning">Warning</option><option value="danger">Urgent / Security</option></select></div>
+          <div class="form-group-light"><label class="form-label-light">Title</label><input class="form-input-light" type="text" id="alert-title" placeholder="e.g. Account review required"></div>
+          <div class="form-group-light"><label class="form-label-light">Message</label><input class="form-input-light" type="text" id="alert-msg" placeholder="Alert message body"></div>
+          <button class="btn btn-danger" onclick="pushAlert()">Send Alert to Member</button>
+        </div>
+      </div>
+
+      <!-- USDIT LOG -->
+      <div class="page" id="page-audit">
+        <div class="page-header"><h2>🗂️ Audit Log</h2><p>Immutable record of all admin edits this session</p></div>
+        <div class="card">
+          <table class="data-table"><thead><tr><th>Timestamp</th><th>Admin</th><th>Role</th><th>Field</th><th>Old Value</th><th>New Value</th></tr></thead><tbody id="audit-log-body"></tbody></table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = '0000';
+const ROLES = {manager:'Branch Manager',teller:'Senior Teller',loans:'Loans Officer',compliance:'Compliance Officer'};
+let currentAdmin = null;
+let sessionStart = null;
+
+function getState(){try{return JSON.parse(localStorage.getItem('wfcu_state')||'null')}catch{return null}}
+function saveState(s){localStorage.setItem('wfcu_state',JSON.stringify(s));}
+function fmt(n){const v=Number(n)||0;return '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+let adminAudit = [];
+
+// ===== LOGIN =====
+function doLogin(){
+  const user = document.getElementById('login-username').value.trim();
+  const pass = document.getElementById('login-password').value;
+  const role = document.getElementById('login-role').value;
+  const err = document.getElementById('login-error');
+
+  if(!user || pass !== ADMIN_PASSWORD){
+    err.style.display = 'block';
+    document.getElementById('login-password').value = '';
+    setTimeout(()=>err.style.display='none', 3500);
+    return;
+  }
+
+  currentAdmin = { id: user, role: ROLES[role] };
+  sessionStart = new Date();
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-app').style.display = 'block';
+
+  const initials = user.replace(/[^A-Za-z]/g,'').slice(0,2).toUpperCase() || 'AD';
+  document.getElementById('sidebar-avatar').textContent = initials;
+  document.getElementById('sidebar-name').textContent = user;
+  document.getElementById('sidebar-role').textContent = ROLES[role];
+  document.getElementById('topbar-name').textContent = user;
+  document.getElementById('topbar-role').textContent = ROLES[role];
+
+  startClock();
+  refreshAll();
+  showToast(`Welcome, ${user}. Admin session started.`,'🔐');
+  setInterval(refreshAll, 2000); // live poll member state
+}
+
+function doLogout(){
+  document.getElementById('admin-app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-username').value = '';
+  currentAdmin = null;
+}
+
+function startClock(){
+  setInterval(()=>{
+    if(!sessionStart) return;
+    const diff = Math.floor((new Date()-sessionStart)/1000);
+    const m = Math.floor(diff/60).toString().padStart(2,'0');
+    const s = (diff%60).toString().padStart(2,'0');
+    const el = document.getElementById('session-clock');
+    if(el) el.textContent = `Session: ${m}:${s}`;
+  },1000);
+}
+
+// ===== NAVIGATION =====
+function showPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  refreshAll();
+}
+
+// ===== REFRESH FROM SHARED STATE =====
+function refreshAll(){
+  const s = getState();
+  const hasUser = s && s.user;
+
+  document.getElementById('no-member-banner').style.display = hasUser ? 'none' : 'block';
+  document.getElementById('bal-no-member').style.display = hasUser ? 'none' : 'block';
+  document.getElementById('ml-empty').style.display = hasUser ? 'none' : 'block';
+  document.getElementById('ml-content').style.display = hasUser ? 'block' : 'none';
+
+  if(!hasUser){
+    document.getElementById('ov-member-status').textContent = 'No session';
+    document.getElementById('ov-member-id').textContent = 'Sign in to member app';
+    document.getElementById('ov-total-balance').textContent = '$0.00';
+    document.getElementById('ov-total-loans').textContent = '$0.00';
+    document.getElementById('ov-points').textContent = '0';
+    return;
+  }
+
+  // Overview
+  document.getElementById('ov-member-status').textContent = s.user.name;
+  document.getElementById('ov-member-id').textContent = 'Member ' + s.user.id;
+  const totalBal = s.accounts.savings.balance + s.accounts.farm.balance + s.accounts.term.balance;
+  const totalLoans = s.loans.l004.balance + s.loans.l007.balance;
+  document.getElementById('ov-total-balance').textContent = fmt(totalBal);
+  document.getElementById('ov-total-loans').textContent = fmt(totalLoans);
+  document.getElementById('ov-points').textContent = s.wildcredits.toLocaleString();
+
+  // Member lookup
+  document.getElementById('ml-avatar').textContent = s.user.avatar;
+  document.getElementById('ml-name').textContent = s.user.name;
+  document.getElementById('ml-meta').textContent = `Member ${s.user.id} · ${s.user.type}`;
+  document.getElementById('ml-savings').textContent = fmt(s.accounts.savings.balance);
+  document.getElementById('ml-farm').textContent = fmt(s.accounts.farm.balance);
+  document.getElementById('ml-term').textContent = fmt(s.accounts.term.balance);
+
+  // Balance editor: refresh current display if not actively mid-edit
+  if(document.activeElement.id !== 'bal-new') updateBalCurrent();
+  if(document.activeElement.id !== 'loan-balance' && document.activeElement.id !== 'loan-rate' && document.activeElement.id !== 'loan-term') updateLoanFields();
+  updateLoanSnapshot();
+  if(document.activeElement.id !== 'grant-received' && document.activeElement.id !== 'grant-pending') updateGrantFields();
+  if(document.activeElement.id !== 'rate-new') updateRateCurrent();
+  if(document.activeElement.id !== 'points-new') updatePointsCurrent();
+
+  renderAuditLog();
+  refreshCryptoSnapshot();
+}
+
+// ===== BALANCE EDITOR =====
+function updateBalCurrent(){
+  const s = getState(); if(!s) return;
+  const key = document.getElementById('bal-account').value;
+  document.getElementById('bal-current').value = s.accounts[key].balance.toLocaleString('en-US',{minimumFractionDigits:2});
+}
+function applyBalanceAdj(){
+  const s = getState();
+  if(!s){ showToast('No member session found','⚠️'); return; }
+  const key = document.getElementById('bal-account').value;
+  const newVal = parseFloat(document.getElementById('bal-new').value);
+  const note = document.getElementById('bal-note').value || 'Admin adjustment';
+  if(isNaN(newVal) || newVal < 0){ showToast('Enter a valid balance amount','⚠️'); return; }
+
+  const old = s.accounts[key].balance;
+  s.accounts[key].balance = newVal;
+  saveState(s);
+
+  document.getElementById('bal-current').value = newVal.toLocaleString('en-US',{minimumFractionDigits:2});
+  document.getElementById('bal-new').value = '';
+
+  logAudit(s.accounts[key].label+' Balance', fmt(old), fmt(newVal));
+  addBalHistory(s.accounts[key].label, old, newVal);
+  pushMemberAlert(s, 'info', 'Account balance updated', `Your ${s.accounts[key].label} balance was adjusted by staff: ${note}`);
+  showToast(`Balance updated: ${fmt(old)} → ${fmt(newVal)}`,'💰');
+  refreshAll();
+}
+function addBalHistory(label, old, newV){
+  const tbody = document.getElementById('bal-history-body');
+  const now = new Date();
+  const ts = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const row = document.createElement('tr');
+  row.innerHTML = `<td style="font-size:11px;color:#8b5050">Today ${ts}</td><td>${label}</td><td>${fmt(old)}</td><td>${fmt(newV)}</td>`;
+  tbody.insertBefore(row, tbody.firstChild);
+}
+
+// ===== LOAN EDITOR =====
+function updateLoanFields(){
+  const s = getState(); if(!s) return;
+  const key = document.getElementById('loan-select').value;
+  const loan = s.loans[key];
+  document.getElementById('loan-balance').value = loan.balance;
+  document.getElementById('loan-rate').value = loan.rate;
+  document.getElementById('loan-term').value = loan.term;
+  document.getElementById('loan-status').value = loan.status;
+}
+function updateLoanSnapshot(){
+  const s = getState(); if(!s) return;
+  document.getElementById('snap-l004-bal').textContent = fmt(s.loans.l004.balance);
+  document.getElementById('snap-l004-rate').textContent = s.loans.l004.rate+'%';
+  document.getElementById('snap-l004-status').textContent = s.loans.l004.status;
+  document.getElementById('snap-l007-bal').textContent = fmt(s.loans.l007.balance);
+  document.getElementById('snap-l007-rate').textContent = s.loans.l007.rate+'%';
+  document.getElementById('snap-l007-status').textContent = s.loans.l007.status;
+}
+function applyLoanEdit(){
+  const s = getState();
+  if(!s){ showToast('No member session found','⚠️'); return; }
+  const key = document.getElementById('loan-select').value;
+  const newBal = parseFloat(document.getElementById('loan-balance').value);
+  const newRate = parseFloat(document.getElementById('loan-rate').value);
+  const newTerm = parseInt(document.getElementById('loan-term').value);
+  const newStatus = document.getElementById('loan-status').value;
+  if(isNaN(newBal) || newBal < 0){ showToast('Enter a valid loan balance','⚠️'); return; }
+
+  const old = { ...s.loans[key] };
+  s.loans[key].balance = newBal;
+  s.loans[key].rate = isNaN(newRate) ? old.rate : newRate;
+  s.loans[key].term = isNaN(newTerm) ? old.term : newTerm;
+  s.loans[key].status = newStatus;
+  saveState(s);
+
+  logAudit(s.loans[key].label+' Loan', fmt(old.balance)+' / '+old.rate+'% / '+old.status, fmt(newBal)+' / '+s.loans[key].rate+'% / '+newStatus);
+  pushMemberAlert(s, 'info', 'Loan account updated', `Your ${s.loans[key].label} was updated by staff. New balance: ${fmt(newBal)}.`);
+  showToast('Loan updated','🌱');
+  refreshAll();
+}
+
+// ===== GRANTS EDITOR =====
+function updateGrantFields(){
+  const s = getState(); if(!s) return;
+  document.getElementById('grant-received').value = s.grants.received;
+  document.getElementById('grant-pending').value = s.grants.pending;
+}
+function applyGrantEdit(){
+  const s = getState();
+  if(!s){ showToast('No member session found','⚠️'); return; }
+  const received = parseFloat(document.getElementById('grant-received').value);
+  const pending = parseFloat(document.getElementById('grant-pending').value);
+  const oldR = s.grants.received, oldP = s.grants.pending;
+  s.grants.received = isNaN(received) ? oldR : received;
+  s.grants.pending = isNaN(pending) ? oldP : pending;
+  saveState(s);
+  logAudit('Grants (received/pending)', fmt(oldR)+' / '+fmt(oldP), fmt(s.grants.received)+' / '+fmt(s.grants.pending));
+  showToast('Grant figures updated','🌳');
+  refreshAll();
+}
+function disburseGrant(){
+  const s = getState();
+  if(!s){ showToast('No member session found','⚠️'); return; }
+  const acc = document.getElementById('grant-disburse-account').value;
+  const amount = parseFloat(document.getElementById('grant-disburse-amount').value);
+  const program = document.getElementById('grant-program-name').value || 'Grant Program';
+  if(isNaN(amount) || amount <= 0){ showToast('Enter a valid amount','⚠️'); return; }
+
+  const old = s.accounts[acc].balance;
+  s.accounts[acc].balance += amount;
+  s.grants.received += amount;
+  s.transactions.unshift({id:Date.now(),desc:program,category:'Grant',amount:amount,account:acc,accountLabel:s.accounts[acc].label,date:new Date().toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'})});
+  saveState(s);
+
+  logAudit(s.accounts[acc].label+' (Grant Disburse)', fmt(old), fmt(s.accounts[acc].balance));
+  pushMemberAlert(s, 'success', 'Grant disbursed!', `${fmt(amount)} from "${program}" has been credited to your ${s.accounts[acc].label} account.`);
+  document.getElementById('grant-disburse-amount').value = '';
+  showToast(`${fmt(amount)} disbursed`,'🌳');
+  refreshAll();
+}
+
+// ===== RATE EDITOR =====
+function updateRateCurrent(){
+  const s = getState(); if(!s) return;
+  const key = document.getElementById('rate-account').value;
+  document.getElementById('rate-new').value = s.accounts[key].rate;
+}
+function applyRateEdit(){
+  const s = getState();
+  if(!s){ showToast('No member session found','⚠️'); return; }
+  const key = document.getElementById('rate-account').value;
+  const newRate = parseFloat(document.getElementById('rate-new').value);
+  if(isNaN(newRate)){ showToast('Enter a valid rate','⚠️'); return; }
+  const old = s.accounts[key].rate;
+  s.accounts[key].rate = newRate;
+  saveState(s);
+  logAudit(s.accounts[key].label+' Rate', old+'%', newRate+'%');
+  showToast('Interest rate updated','📈');
+  refreshAll();
+}
+
+// ===== WILDLIFE POINTS EDITOR =====
+function updatePointsCurrent(){
+  const s = getState(); if(!s) return;
+  document.getElementById('points-current').value = s.wildcredits.toLocaleString();
+}
+function applyPointsEdit(){
+  const s = getState();
+  if(!s){ showToast('No member session found','⚠️'); return; }
+  const newPts = parseInt(document.getElementById('points-new').value);
+  if(isNaN(newPts) || newPts < 0){ showToast('Enter a valid points value','⚠️'); return; }
+  const old = s.wildcredits;
+  s.wildcredits = newPts;
+  saveState(s);
+  logAudit('Wildlife Points', old, newPts);
+  pushMemberAlert(s,'success','Wildlife Credits updated',`Your Wildlife Care Fund points have been updated to ${newPts.toLocaleString()}.`);
+  document.getElementById('points-new').value = '';
+  showToast('Points updated','🦎');
+  refreshAll();
+}
+
+// ===== MANUAL TRANSACTION =====
+function postTransaction(){
+  const s = getState();
+  if(!s){ showToast('No member session found','⚠️'); return; }
+  const acc = document.getElementById('ptx-account').value;
+  const type = document.getElementById('ptx-type').value;
+  const category = document.getElementById('ptx-category').value;
+  const amount = parseFloat(document.getElementById('ptx-amount').value);
+  const desc = document.getElementById('ptx-desc').value.trim();
+  if(isNaN(amount) || amount <= 0 || !desc){ showToast('Fill in amount and description','⚠️'); return; }
+
+  const signed = type === 'credit' ? amount : -amount;
+  s.accounts[acc].balance += signed;
+  if(s.accounts[acc].balance < 0) s.accounts[acc].balance = 0;
+  s.transactions.unshift({id:Date.now(),desc,category,amount:signed,account:acc,accountLabel:s.accounts[acc].label,date:new Date().toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'})});
+  saveState(s);
+
+  logAudit(s.accounts[acc].label+' (Manual Tx)', '—', (signed>0?'+':'')+fmt(signed));
+  pushMemberAlert(s, signed>0?'success':'info', signed>0?'Funds received':'Payment posted', `${desc} — ${signed>0?'+':''}${fmt(Math.abs(signed))}`);
+  document.getElementById('ptx-amount').value=''; document.getElementById('ptx-desc').value='';
+  showToast('Transaction posted','📋');
+  refreshAll();
+}
+
+// ===== PUSH ALERT =====
+function pushAlert(){
+  const s = getState();
+  if(!s){ showToast('No member session found','⚠️'); return; }
+  const type = document.getElementById('alert-type').value;
+  const title = document.getElementById('alert-title').value.trim();
+  const msg = document.getElementById('alert-msg').value.trim();
+  if(!title || !msg){ showToast('Fill in title and message','⚠️'); return; }
+  pushMemberAlert(s, type, title, msg);
+  document.getElementById('alert-title').value=''; document.getElementById('alert-msg').value='';
+  showToast('Alert sent to member','🔔');
+  refreshAll();
+}
+function pushMemberAlert(s, type, title, msg){
+  s.alerts.unshift({id:Date.now(),type,title,msg,date:'Just now',read:false});
+  saveState(s);
+}
+
+// ===== USDIT LOG =====
+function logAudit(field, oldVal, newVal){
+  adminAudit.unshift({
+    time: new Date().toLocaleString('en-US'),
+    admin: currentAdmin ? currentAdmin.id : 'Admin',
+    role: currentAdmin ? currentAdmin.role : 'Staff',
+    field, oldVal, newVal
+  });
+}
+function renderAuditLog(){
+  const body = document.getElementById('audit-log-body');
+  const ovBody = document.getElementById('overview-audit-body');
+  if(adminAudit.length === 0){
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#8b5050;padding:20px">No edits made yet this session</td></tr>';
+    ovBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#8b5050;padding:20px">No recent activity</td></tr>';
+    return;
+  }
+  const roleCls = r => r === 'Branch Manager' ? 'badge-purple' : 'badge-blue';
+  body.innerHTML = adminAudit.map(a => `<tr><td style="font-size:11px;color:#8b5050">${a.time}</td><td>${a.admin}</td><td><span class="badge ${roleCls(a.role)}">${a.role}</span></td><td>${a.field}</td><td>${a.oldVal}</td><td>${a.newVal}</td></tr>`).join('');
+  ovBody.innerHTML = adminAudit.slice(0,5).map(a => `<tr><td style="font-size:11px;color:#8b5050">${a.time}</td><td>${a.field}</td><td>${a.oldVal}</td><td>${a.newVal}</td></tr>`).join('');
+}
+
+// ===== CRYPTO WALLET EDITOR =====
+const CRYPTO_KEY = 'wfcu_crypto';
+function getCrypto(){ try{ return JSON.parse(localStorage.getItem(CRYPTO_KEY)||'null'); }catch{ return null; } }
+function saveCrypto(c){ localStorage.setItem(CRYPTO_KEY, JSON.stringify(c)); }
+function blankCrypto(){ return { btc:0, eth:0, sol:0, txHistory:[] }; }
+function ensureCrypto(){ let c=getCrypto(); if(!c){ c=blankCrypto(); saveCrypto(c); } return c; }
+
+function applyCryptoEdit(){
+  const btc = parseFloat(document.getElementById('admin-btc-bal').value);
+  const eth = parseFloat(document.getElementById('admin-eth-bal').value);
+  const sol = parseFloat(document.getElementById('admin-sol-bal').value);
+  const c = ensureCrypto();
+  const old = { btc:c.btc, eth:c.eth, sol:c.sol };
+
+  if(!isNaN(btc) && btc>=0) c.btc = btc;
+  if(!isNaN(eth) && eth>=0) c.eth = eth;
+  if(!isNaN(sol) && sol>=0) c.sol = sol;
+  saveCrypto(c);
+
+  const s = getState();
+  if(s){
+    s.alerts.unshift({id:Date.now(),type:'info',title:'Crypto balances updated',msg:`Admin adjusted your crypto wallet balances.`,date:'Just now',read:false});
+    saveState(s);
+  }
+
+  logAudit('Crypto Balances',
+    `BTC:${old.btc} ETH:${old.eth} SOL:${old.sol}`,
+    `BTC:${c.btc} ETH:${c.eth} SOL:${c.sol}`
+  );
+  refreshCryptoSnapshot();
+  showToast('Crypto balances saved','₿');
+}
+
+function injectCryptoTx(){
+  const coin = document.getElementById('admin-inject-coin').value;
+  const type = document.getElementById('admin-inject-type').value;
+  const amount = parseFloat(document.getElementById('admin-inject-amount').value);
+  const addr = document.getElementById('admin-inject-addr').value.trim() || '0x000…injected';
+  const audVal = parseFloat(document.getElementById('admin-inject-aud').value) || 0;
+
+  if(isNaN(amount)||amount<=0){ showToast('Enter a valid amount','⚠️'); return; }
+
+  const c = ensureCrypto();
+  if(type==='receive') c[coin] += amount;
+  else { c[coin] = Math.max(0, c[coin]-amount); }
+
+  const txid = '0x'+[...Array(16)].map(()=>Math.floor(Math.random()*16).toString(16)).join('');
+  c.txHistory.unshift({ type, coin, amount, addr, audVal, txid, date:new Date().toLocaleString('en-US'), status:'Confirmed' });
+  saveCrypto(c);
+
+  const s = getState();
+  if(s){
+    s.alerts.unshift({id:Date.now(),type:'success',title:`Crypto ${type} injected`,msg:`${amount} ${coin.toUpperCase()} ${type} recorded by admin.`,date:'Just now',read:false});
+    saveState(s);
+  }
+
+  logAudit(`Crypto Tx Inject (${type})`, '—', `${amount} ${coin.toUpperCase()} TXID:${txid.slice(0,12)}…`);
+  document.getElementById('admin-inject-amount').value='';
+  document.getElementById('admin-inject-addr').value='';
+  document.getElementById('admin-inject-aud').value='';
+  refreshCryptoSnapshot();
+  showToast(`${coin.toUpperCase()} transaction injected`,'📊');
+}
+
+function refreshCryptoSnapshot(){
+  const c = ensureCrypto();
+  const tbody = document.getElementById('crypto-snapshot-body');
+  if(!tbody) return;
+  const rows = [
+    ['₿ Bitcoin','BTC','bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','Bitcoin Mainnet',c.btc,8,'#f7931a'],
+    ['Ξ Ethereum','ETH','0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','Ethereum ERC-20',c.eth,6,'#627eea'],
+    ['◎ Solana','SOL','F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','Solana Mainnet',c.sol,6,'#9945ff'],
+  ];
+  tbody.innerHTML = rows.map(([name,sym,addr,net,bal,dec,color])=>`
+    <tr>
+      <td><strong style="color:${color}">${name}</strong></td>
+      <td><strong>${bal.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})} ${sym}</strong></td>
+      <td style="font-family:monospace;font-size:11px;color:#8b5050">${addr}</td>
+      <td><span class="badge badge-blue">${net}</span></td>
+    </tr>
+  `).join('');
+
+  // Pre-fill balance inputs with current values
+  const bi = document.getElementById('admin-btc-bal');
+  const ei = document.getElementById('admin-eth-bal');
+  const si = document.getElementById('admin-sol-bal');
+  if(bi) bi.value = c.btc;
+  if(ei) ei.value = c.eth;
+  if(si) si.value = c.sol;
+}
+
+// ===== TOAST =====
+function showToast(msg, icon){
+  document.getElementById('toast-icon').textContent = icon||'✅';
+  document.getElementById('toast-msg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>
