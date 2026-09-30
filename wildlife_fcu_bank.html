@@ -1,0 +1,2278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Farm Trust Bank — Member Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --forest-dark: #1a2e1a; --forest-mid: #2d4a2d; --forest-light: #3d6b3d;
+  --moss: #5a7a3a; --fern: #7fa85a; --leaf: #a8c878; --mist: #d4e8c2;
+  --bark: #8b6914; --earth: #5c4020; --creek: #4a9080; --sky: #c8e8d8;
+  --gold: #d4a830; --cream: #f8f5e8; --white: #ffffff;
+  --card-bg: rgba(255,255,255,0.92); --glass-dark: rgba(26,46,26,0.7);
+  --shadow-sm: 0 4px 16px rgba(26,46,26,0.15);
+  --btc: #f7931a; --eth: #627eea; --sol: #9945ff; --usdt: #26a17b; --tron: #c23631;
+}
+
+/* ===== DEPOSIT WALLET PANEL ===== */
+.deposit-panel{background:linear-gradient(160deg,#0d1a0d 0%,#0a1a14 50%,#0d0d1a 100%);border-radius:20px;padding:24px;border:1px solid rgba(255,255,255,0.07);box-shadow:0 8px 40px rgba(0,0,0,0.4);}
+.deposit-panel-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--mist);margin-bottom:4px;}
+.deposit-panel-sub{font-size:12px;color:rgba(212,232,194,0.4);margin-bottom:18px;line-height:1.5;}
+.wallet-tab-bar{display:flex;gap:4px;background:rgba(255,255,255,0.05);border-radius:10px;padding:3px;margin-bottom:18px;overflow-x:auto;}
+.wallet-tab{flex:1;min-width:70px;padding:7px 6px;border:none;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:rgba(212,232,194,0.45);text-align:center;white-space:nowrap;}
+.wallet-tab.active-btc{background:#f7931a;color:#000;}
+.wallet-tab.active-usdt{background:#26a17b;color:#fff;}
+.wallet-tab.active-eth{background:#627eea;color:#fff;}
+.wallet-tab.active-sol{background:#9945ff;color:#fff;}
+.wallet-tab:not(.active-btc):not(.active-usdt):not(.active-eth):not(.active-sol):hover{background:rgba(255,255,255,0.07);color:var(--mist);}
+.wallet-pane{display:none;animation:fadePane .25s ease;}
+.wallet-pane.active{display:block;}
+@keyframes fadePane{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.qr-box{width:130px;height:130px;border-radius:14px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:600;text-align:center;padding:8px;}
+.addr-display{font-family:monospace;font-size:11.5px;word-break:break-all;line-height:1.6;padding:12px 14px;border-radius:10px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:rgba(212,232,194,0.8);}
+.copy-addr-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.network-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;}
+.deposit-warning{font-size:11px;color:rgba(255,160,100,.8);background:rgba(255,100,50,.08);border:1px solid rgba(255,100,50,.2);border-radius:8px;padding:8px 12px;margin-top:10px;line-height:1.5;}
+.deposit-confirm-btn{width:100%;padding:11px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
+.deposit-steps{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.deposit-step{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:rgba(212,232,194,0.55);}
+.step-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+/* ===== CRYPTO STYLES ===== */
+.crypto-card{border-radius:20px;padding:22px;position:relative;overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s;}
+.crypto-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.25);}
+.cc-btc{background:linear-gradient(135deg,#1a0f00 0%,#3d2200 50%,#1a0f00 100%);}
+.cc-eth{background:linear-gradient(135deg,#0a0a2e 0%,#1a1a5e 50%,#0a0a2e 100%);}
+.cc-sol{background:linear-gradient(135deg,#0f001a 0%,#2d0060 50%,#0f001a 100%);}
+.cc-network-badge{position:absolute;top:14px;right:14px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.cc-btc .cc-network-badge{background:rgba(247,147,26,.25);color:#f7931a;border:1px solid rgba(247,147,26,.35);}
+.cc-eth .cc-network-badge{background:rgba(98,126,234,.25);color:#8aa4f4;border:1px solid rgba(98,126,234,.35);}
+.cc-sol .cc-network-badge{background:rgba(153,69,255,.25);color:#c084fc;border:1px solid rgba(153,69,255,.35);}
+.cc-icon{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;}
+.cc-btc .cc-icon{background:rgba(247,147,26,.2);}
+.cc-eth .cc-icon{background:rgba(98,126,234,.2);}
+.cc-sol .cc-icon{background:rgba(153,69,255,.2);}
+.cc-label{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.5px;text-transform:uppercase;font-weight:500;}
+.cc-amount{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:white;margin-top:2px;}
+.cc-aud{font-size:13px;color:rgba(255,255,255,.5);margin-top:2px;}
+.cc-address{font-size:9.5px;color:rgba(255,255,255,.35);margin-top:14px;font-family:monospace;letter-spacing:.3px;word-break:break-all;line-height:1.5;}
+.cc-change{font-size:11px;margin-top:6px;font-weight:500;}
+.cc-change.up{color:#6ef08a;} .cc-change.down{color:#ff7070;}
+.cc-bg-glow{position:absolute;width:200px;height:200px;border-radius:50%;opacity:.08;pointer-events:none;}
+.cc-btc .cc-bg-glow{background:#f7931a;top:-60px;right:-60px;}
+.cc-eth .cc-bg-glow{background:#627eea;top:-60px;right:-60px;}
+.cc-sol .cc-bg-glow{background:#9945ff;top:-60px;right:-60px;}
+.price-ticker{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(255,255,255,.06);border-radius:10px;border:1px solid rgba(255,255,255,.06);}
+.ticker-coin{display:flex;align-items:center;gap:6px;}
+.ticker-price{font-size:13px;font-weight:600;color:var(--mist);}
+.ticker-change{font-size:11px;}
+.ticker-change.up{color:#6ef08a;} .ticker-change.down{color:#ff7070;}
+.ticker-divider{width:1px;height:20px;background:rgba(255,255,255,.1);}
+.wallet-address-box{background:#f8fdf2;border:1.5px solid #d4e0c8;border-radius:12px;padding:14px 16px;font-family:monospace;font-size:12px;color:#3a5a2a;word-break:break-all;line-height:1.6;margin-top:8px;position:relative;}
+.copy-btn{position:absolute;top:10px;right:10px;background:var(--moss);color:white;border:none;border-radius:7px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:500;}
+.copy-btn:hover{background:var(--forest-light);}
+.qr-placeholder{width:120px;height:120px;border-radius:12px;background:#f0f5e8;border:2px solid #d4e0c8;display:flex;align-items:center;justify-content:center;font-size:11px;color:#8a9c8a;text-align:center;padding:8px;flex-shrink:0;}
+.crypto-tab{padding:8px 16px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:rgba(212,232,194,.5);transition:all .2s;}
+.crypto-tab.active{background:rgba(168,200,120,.2);color:var(--leaf);}
+.network-badge-inline{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;}
+.nb-btc{background:rgba(247,147,26,.15);color:#f7931a;}
+.nb-eth{background:rgba(98,126,234,.15);color:#8aa4f4;}
+.nb-sol{background:rgba(153,69,255,.15);color:#c084fc;}
+.crypto-tx-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f0f5e8;}
+.crypto-tx-row:last-child{border-bottom:none;}
+.crypto-tx-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.send-modal-input{width:100%;padding:11px 14px;border:1.5px solid #d4e0c8;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--forest-dark);background:white;outline:none;margin-bottom:14px;}
+.send-modal-input:focus{border-color:var(--moss);}
+.crypto-portfolio-bar{height:8px;border-radius:10px;overflow:hidden;background:#e8f0e0;margin:10px 0;}
+.portfolio-segment{height:100%;display:inline-block;float:left;}
+.chain-info-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;}
+.chain-info-row .ci-label{color:#6b7c6b;}
+.chain-info-row .ci-val{color:var(--forest-dark);font-weight:500;}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:#6ef08a;display:inline-block;animation:pulseDot 2s infinite;}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--forest-dark);min-height:100vh;overflow-x:hidden;}
+.bg-scene{position:fixed;inset:0;z-index:0;overflow:hidden;}
+.bg-scene svg{width:100%;height:100%;position:absolute;inset:0;}
+.app-shell{position:relative;z-index:1;display:flex;min-height:100vh;}
+.sidebar{width:260px;min-height:100vh;background:var(--glass-dark);backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+.logo-area{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo-badge{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--moss),var(--creek));display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:24px;}
+.logo-area h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--mist);line-height:1.2;}
+.logo-area p{font-size:11px;color:rgba(212,232,194,0.5);margin-top:3px;letter-spacing:0.5px;text-transform:uppercase;}
+.nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;cursor:pointer;transition:all 0.2s;color:rgba(212,232,194,0.6);font-size:13.5px;font-weight:400;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:rgba(255,255,255,0.07);color:var(--mist);}
+.nav-item.active{background:rgba(168,200,120,0.2);color:var(--leaf);font-weight:500;}
+.nav-item .icon{font-size:17px;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--creek);color:white;font-size:10px;padding:2px 7px;border-radius:20px;}
+.nav-badge.alert-badge{background:#c62828;}
+.nav-section-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(212,232,194,0.3);padding:12px 14px 4px;}
+.sidebar-footer{padding:16px 12px;border-top:1px solid rgba(255,255,255,0.08);}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:background 0.2s;}
+.user-card:hover{background:rgba(255,255,255,0.06);}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#5a7a3a,#4a9080);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:white;flex-shrink:0;}
+.user-info{flex:1;min-width:0;}
+.user-info strong{display:block;font-size:13px;font-weight:500;color:var(--mist);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-info span{font-size:11px;color:rgba(212,232,194,0.4);}
+.main{flex:1;padding:32px;overflow-y:auto;min-width:0;}
+.app-page{display:none;}
+.app-page.active{display:block;}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;}
+.page-header h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--mist);line-height:1.2;}
+.page-header p{font-size:13px;color:rgba(212,232,194,0.5);margin-top:4px;}
+.header-actions{display:flex;gap:10px;}
+.card{background:var(--card-bg);border-radius:20px;padding:24px;box-shadow:var(--shadow-sm);}
+.card-dark{background:var(--glass-dark);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.stat-card{background:var(--card-bg);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);}
+.stat-label{font-size:11px;color:#6b7c6b;letter-spacing:0.5px;text-transform:uppercase;font-weight:500;}
+.stat-value{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--forest-dark);margin-top:4px;}
+.stat-delta{font-size:11px;margin-top:4px;}
+.delta-up{color:#2e7d32;} .delta-down{color:#c62828;} .delta-neutral{color:#8a8a8a;}
+.virtual-card{width:340px;height:200px;border-radius:20px;position:relative;overflow:hidden;cursor:pointer;transition:transform 0.3s;}
+.virtual-card:hover{transform:translateY(-4px) rotate(1deg);}
+.vc-forest{background:linear-gradient(135deg,#1a2e1a 0%,#2d5a2d 50%,#1a3a2a 100%);}
+.vc-creek{background:linear-gradient(135deg,#1a3a35 0%,#2a6058 50%,#1a3030 100%);}
+.vc-earth{background:linear-gradient(135deg,#3a2010 0%,#6b4020 50%,#2a1808 100%);}
+.vc-bg-art{position:absolute;inset:0;opacity:0.25;}
+.vc-content{position:relative;z-index:2;padding:22px;height:100%;display:flex;flex-direction:column;justify-content:space-between;}
+.vc-chip{width:32px;height:24px;background:linear-gradient(135deg,#d4a830,#a07820);border-radius:5px;}
+.vc-logo{font-family:'Playfair Display',serif;font-size:13px;color:rgba(255,255,255,0.7);font-weight:600;letter-spacing:1px;}
+.vc-number{font-size:14px;color:rgba(255,255,255,0.8);letter-spacing:2px;font-weight:300;}
+.vc-meta{display:flex;justify-content:space-between;align-items:flex-end;}
+.vc-name{font-size:11px;color:rgba(255,255,255,0.9);font-weight:500;letter-spacing:1px;text-transform:uppercase;}
+.vc-expiry{font-size:10px;color:rgba(255,255,255,0.5);}
+.vc-balance{font-family:'Playfair Display',serif;font-size:18px;color:var(--leaf);font-weight:700;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;border:none;}
+.btn-primary{background:var(--moss);color:white;} .btn-primary:hover{background:var(--forest-light);}
+.btn-outline{background:transparent;color:var(--forest-dark);border:1.5px solid rgba(45,74,45,0.25);} .btn-outline:hover{background:rgba(45,74,45,0.06);}
+.btn-ghost{background:rgba(255,255,255,0.1);color:var(--mist);border:1px solid rgba(255,255,255,0.12);} .btn-ghost:hover{background:rgba(255,255,255,0.18);}
+.btn-danger{background:#c62828;color:white;} .btn-danger:hover{background:#b71c1c;}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.tx-table{width:100%;border-collapse:collapse;}
+.tx-table th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:#6b7c6b;border-bottom:1.5px solid #e8f0e0;}
+.tx-table td{padding:13px 14px;font-size:13.5px;color:var(--forest-dark);border-bottom:1px solid #f0f5e8;}
+.tx-table tr:hover td{background:#f8fdf2;}
+.tx-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.tx-amount-pos{color:#2e7d32;font-weight:600;} .tx-amount-neg{color:var(--forest-dark);}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.badge-green{background:#e8f5e9;color:#2e7d32;} .badge-blue{background:#e3f2fd;color:#1565c0;}
+.badge-amber{background:#fff8e1;color:#f57f17;} .badge-red{background:#ffebee;color:#c62828;}
+.badge-gray{background:#f5f5f5;color:#616161;}
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-size:12px;font-weight:600;color:#5a7a3a;margin-bottom:6px;letter-spacing:0.3px;text-transform:uppercase;}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid #d4e0c8;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--forest-dark);background:white;transition:border-color 0.2s;outline:none;}
+.form-input:focus{border-color:var(--moss);}
+.loan-card{background:var(--card-bg);border-radius:16px;padding:20px;border-left:4px solid var(--moss);box-shadow:var(--shadow-sm);}
+.loan-card.grant{border-left-color:var(--creek);}
+.loan-title{font-size:15px;font-weight:600;color:var(--forest-dark);}
+.loan-subtitle{font-size:12px;color:#6b7c6b;margin-top:3px;}
+.loan-amount{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--forest-dark);margin-top:12px;}
+.loan-rate{font-size:12px;color:var(--moss);margin-top:2px;}
+.progress-bar{height:5px;background:#e8f0e0;border-radius:10px;margin-top:12px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--fern));border-radius:10px;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--forest-dark);color:var(--mist);padding:12px 20px;border-radius:12px;font-size:13px;display:flex;align-items:center;gap:10px;z-index:1000;transform:translateY(80px);opacity:0;transition:all 0.3s ease;box-shadow:0 8px 40px rgba(26,46,26,0.25);max-width:380px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.section-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin-bottom:14px;}
+.section-title-light{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--mist);margin-bottom:14px;}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.bar-label{font-size:12px;color:#5a7a3a;width:90px;flex-shrink:0;font-weight:500;}
+.bar-track{flex:1;height:8px;background:#e8f0e0;border-radius:10px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--moss),var(--fern));transition:width 1s ease;}
+.bar-val{font-size:12px;color:var(--forest-dark);font-weight:500;width:60px;text-align:right;flex-shrink:0;}
+.input-group{position:relative;}
+.input-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#5a7a3a;font-weight:500;}
+.input-group .form-input{padding-left:28px;}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;display:none;align-items:center;justify-content:center;}
+.modal-backdrop.open{display:flex;}
+.modal{background:white;border-radius:20px;padding:28px;width:440px;max-width:90vw;box-shadow:0 20px 80px rgba(0,0,0,0.3);max-height:85vh;overflow-y:auto;}
+.modal h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--forest-dark);margin-bottom:6px;}
+.modal p{font-size:13px;color:#6b7c6b;margin-bottom:20px;}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.divider{height:1px;background:#e8f0e0;margin:24px 0;}
+.mb-6{margin-bottom:24px;} .mb-4{margin-bottom:16px;} .mt-4{margin-top:16px;}
+.flex{display:flex;} .items-center{align-items:center;} .gap-3{gap:12px;} .gap-2{gap:8px;}
+.justify-between{justify-content:space-between;} .flex-1{flex:1;}
+.empty-state{text-align:center;padding:48px 24px;color:#8a9c8a;}
+.empty-state .ic{font-size:40px;margin-bottom:12px;}
+.empty-state h4{font-size:15px;font-weight:600;color:var(--forest-dark);margin-bottom:4px;}
+.empty-state p{font-size:13px;color:#6b7c6b;}
+/* Alert cards */
+.alert-card{display:flex;gap:14px;padding:16px;border-radius:14px;background:var(--card-bg);box-shadow:var(--shadow-sm);margin-bottom:10px;border-left:4px solid #c8c8c8;}
+.alert-card.unread{border-left-color:var(--moss);background:#f8fdf2;}
+.alert-card.type-success{border-left-color:#2e7d32;}
+.alert-card.type-warning{border-left-color:#f57f17;}
+.alert-card.type-danger{border-left-color:#c62828;}
+.alert-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:#eef5e4;}
+.alert-content{flex:1;}
+.alert-title{font-size:13.5px;font-weight:600;color:var(--forest-dark);}
+.alert-msg{font-size:12.5px;color:#6b7c6b;margin-top:2px;line-height:1.4;}
+.alert-date{font-size:11px;color:#a0b0a0;margin-top:6px;}
+.unread-dot{width:8px;height:8px;border-radius:50%;background:var(--moss);flex-shrink:0;margin-top:4px;}
+/* Transaction type selector */
+.tx-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.tx-type-btn{padding:14px;border:1.5px solid #d4e0c8;border-radius:12px;background:white;cursor:pointer;text-align:center;transition:all 0.2s;}
+.tx-type-btn.selected{border-color:var(--moss);background:#f0f8e8;}
+.tx-type-btn .tt-icon{font-size:22px;margin-bottom:4px;}
+.tx-type-btn .tt-label{font-size:12px;font-weight:600;color:var(--forest-dark);}
+</style>
+</head>
+<body>
+
+<div class="bg-scene">
+<svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#0d1f0d"/><stop offset="100%" style="stop-color:#1a3a20"/></linearGradient>
+    <linearGradient id="groundGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#1a2e0a"/><stop offset="100%" style="stop-color:#0d1808"/></linearGradient>
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:#c8e8d8;stop-opacity:0.3"/><stop offset="100%" style="stop-color:#c8e8d8;stop-opacity:0"/></radialGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#skyGrad)"/>
+  <circle cx="120" cy="80" r="1" fill="#c8e8d8" opacity="0.6"/><circle cx="340" cy="45" r="1.5" fill="#c8e8d8" opacity="0.5"/>
+  <circle cx="560" cy="90" r="1" fill="white" opacity="0.4"/><circle cx="780" cy="30" r="1.5" fill="white" opacity="0.5"/>
+  <circle cx="1000" cy="70" r="1" fill="#c8e8d8" opacity="0.6"/><circle cx="1200" cy="40" r="1.5" fill="white" opacity="0.4"/>
+  <circle cx="1380" cy="85" r="1" fill="white" opacity="0.5"/>
+  <ellipse cx="1100" cy="120" rx="80" ry="80" fill="url(#moonGlow)"/>
+  <circle cx="1100" cy="120" r="28" fill="#dff0e8" opacity="0.9"/><circle cx="1092" cy="113" r="22" fill="#c8e8d8" opacity="0.6"/>
+  <rect x="0" y="700" width="1440" height="200" fill="url(#groundGrad)"/>
+  <ellipse cx="200" cy="680" rx="350" ry="120" fill="#1a3010" opacity="0.8"/>
+  <ellipse cx="700" cy="700" rx="400" ry="100" fill="#162808" opacity="0.9"/>
+  <ellipse cx="1200" cy="670" rx="320" ry="130" fill="#1a3010" opacity="0.8"/>
+  <rect x="55" y="300" width="16" height="400" fill="#1a1205" rx="4"/>
+  <ellipse cx="63" cy="340" rx="55" ry="70" fill="#1e3c10"/><ellipse cx="58" cy="290" rx="42" ry="58" fill="#243c14"/>
+  <rect x="1370" y="320" width="16" height="380" fill="#1a1205" rx="4"/>
+  <ellipse cx="1378" cy="360" rx="52" ry="66" fill="#1e3c10"/>
+  <rect x="520" y="260" width="10" height="450" fill="#3a2c08" rx="3"/>
+  <ellipse cx="525" cy="300" rx="28" ry="90" fill="#2a4a18" opacity="0.8"/>
+  <rect x="940" y="280" width="10" height="430" fill="#3a2c08" rx="3"/>
+  <ellipse cx="945" cy="320" rx="26" ry="86" fill="#2a4a18" opacity="0.8"/>
+  <ellipse cx="180" cy="710" rx="50" ry="25" fill="#3d6b25" opacity="0.7"/>
+  <ellipse cx="720" cy="715" rx="45" ry="20" fill="#3d6b25" opacity="0.7"/>
+  <ellipse cx="1300" cy="720" rx="50" ry="21" fill="#3d6b25" opacity="0.65"/>
+  <rect x="0" y="600" width="1440" height="300" fill="#1a2e1a" opacity="0.5"/>
+</svg>
+</div>
+
+<div class="toast" id="toast"><span id="toast-icon">✅</span><span id="toast-msg">Action completed</span></div>
+
+<div class="app-shell">
+  <nav class="sidebar">
+    <div class="logo-area">
+      <div class="logo-badge">🌍</div>
+      <h1>Global Farm Trust</h1>
+      <p>Global Agricultural Bank</p>
+    </div>
+    <div class="nav">
+      <p class="nav-section-label">Banking</p>
+      <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="icon">🏡</span> Dashboard</button>
+      <button class="nav-item" onclick="showPage('accounts',this)"><span class="icon">🪨</span> Accounts</button>
+      <button class="nav-item" onclick="showPage('cards',this)"><span class="icon">🌿</span> Virtual Cards</button>
+      <button class="nav-item" onclick="showPage('transactions',this)"><span class="icon">🌊</span> Transactions</button>
+      <button class="nav-item" onclick="showPage('newtx',this)"><span class="icon">➕</span> New Transaction</button>
+      <button class="nav-item" onclick="showPage('alerts',this)"><span class="icon">🔔</span> Alerts <span class="nav-badge alert-badge" id="alert-count" style="display:none">0</span></button>
+      <button class="nav-item" onclick="showPage('transfer',this)"><span class="icon">🦋</span> Transfer</button>
+      <button class="nav-item" onclick="showPage('crypto',this)"><span class="icon">₿</span> Crypto Wallet</button>
+      <p class="nav-section-label" style="margin-top:8px">Wildlife Finance</p>
+      <button class="nav-item" onclick="showPage('loans',this)"><span class="icon">🌱</span> Farm Loans</button>
+      <button class="nav-item" onclick="showPage('grants',this)"><span class="icon">🌳</span> Grants & Aid</button>
+      <button class="nav-item" onclick="showPage('wildlife',this)"><span class="icon">🦎</span> Wildlife Care Fund</button>
+      <p class="nav-section-label" style="margin-top:8px">Information</p>
+      <button class="nav-item" onclick="showPage('about',this)"><span class="icon">🌿</span> About Global Farm Trust</button>
+      <button class="nav-item" onclick="showPage('help',this)"><span class="icon">💬</span> Help & Support</button>
+      <button class="nav-item" onclick="showPage('privacy',this)"><span class="icon">🔒</span> Privacy Policy</button>
+      <button class="nav-item" onclick="showPage('terms',this)"><span class="icon">📄</span> Terms of Service</button>
+      <button class="nav-item" onclick="showPage('apra',this)"><span class="icon">🏛️</span> FDIC Disclosure</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar" id="sb-avatar">JK</div>
+        <div class="user-info"><strong id="sb-name">Member</strong><span id="sb-id">Member ID</span></div>
+      </div>
+      <!-- Sidebar Deposit Widget -->
+      <div style="margin-top:10px;padding:12px;background:linear-gradient(160deg,rgba(13,26,13,.9),rgba(10,20,26,.9));border-radius:12px;border:1px solid rgba(255,255,255,.08)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+          <span style="font-size:10px;color:rgba(212,232,194,.4);text-transform:uppercase;letter-spacing:.6px;font-weight:600">⚡ Deposit Addresses</span>
+          <span style="font-size:9px;color:rgba(212,232,194,.25)">Click = Copy</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <!-- BTC -->
+          <div onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="cursor:pointer;padding:7px 10px;border-radius:8px;background:rgba(247,147,26,.08);border:1px solid rgba(247,147,26,.2);transition:background .2s" onmouseover="this.style.background='rgba(247,147,26,.16)'" onmouseout="this.style.background='rgba(247,147,26,.08)'">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+              <span style="font-size:11px;font-weight:700;color:#f7931a">₿ Bitcoin</span>
+              <span style="font-size:9px;color:rgba(247,147,26,.6);background:rgba(247,147,26,.12);padding:1px 6px;border-radius:4px">MAINNET</span>
+            </div>
+            <div style="font-family:monospace;font-size:9px;color:rgba(247,147,26,.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">bc1qc4mshly8zvyu3hj…j50</div>
+          </div>
+          <!-- USDT -->
+          <div onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="cursor:pointer;padding:7px 10px;border-radius:8px;background:rgba(38,161,123,.08);border:1px solid rgba(38,161,123,.22);transition:background .2s" onmouseover="this.style.background='rgba(38,161,123,.16)'" onmouseout="this.style.background='rgba(38,161,123,.08)'">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+              <span style="font-size:11px;font-weight:700;color:#26a17b">₮ USDT</span>
+              <span style="font-size:9px;color:rgba(38,161,123,.6);background:rgba(38,161,123,.12);padding:1px 6px;border-radius:4px">TRC-20</span>
+            </div>
+            <div style="font-family:monospace;font-size:9px;color:rgba(38,161,123,.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">THMbzqFM8KNsrNMynjy…zo</div>
+          </div>
+          <!-- ETH -->
+          <div onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="cursor:pointer;padding:7px 10px;border-radius:8px;background:rgba(98,126,234,.08);border:1px solid rgba(98,126,234,.22);transition:background .2s" onmouseover="this.style.background='rgba(98,126,234,.16)'" onmouseout="this.style.background='rgba(98,126,234,.08)'">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+              <span style="font-size:11px;font-weight:700;color:#8aa4f4">Ξ Ethereum</span>
+              <span style="font-size:9px;color:rgba(98,126,234,.6);background:rgba(98,126,234,.12);padding:1px 6px;border-radius:4px">ERC-20</span>
+            </div>
+            <div style="font-family:monospace;font-size:9px;color:rgba(98,126,234,.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">0x8f8A813691E9aA95d…e3</div>
+          </div>
+          <!-- SOL -->
+          <div onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="cursor:pointer;padding:7px 10px;border-radius:8px;background:rgba(153,69,255,.08);border:1px solid rgba(153,69,255,.22);transition:background .2s" onmouseover="this.style.background='rgba(153,69,255,.16)'" onmouseout="this.style.background='rgba(153,69,255,.08)'">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+              <span style="font-size:11px;font-weight:700;color:#c084fc">◎ Solana</span>
+              <span style="font-size:9px;color:rgba(153,69,255,.6);background:rgba(153,69,255,.12);padding:1px 6px;border-radius:4px">SPL</span>
+            </div>
+            <div style="font-family:monospace;font-size:9px;color:rgba(153,69,255,.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">F22rw14LyJWBc6uPyFaN…ci</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:rgba(212,232,194,.2);text-align:center;margin-top:8px">Tap address → copy → paste in your wallet</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;justify-content:center" onclick="doLogout()">🚪 Sign Out</button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="app-page active" id="page-dashboard">
+      <div class="page-header">
+        <div><h2 id="dash-greeting">Welcome 🌙</h2><p>Welcome to Global Farm Trust — the world's agricultural bank</p></div>
+        <div class="header-actions">
+          <button class="btn btn-ghost btn-sm" onclick="showPage('alerts',document.querySelectorAll('.nav-item')[5])">🔔 Alerts</button>
+          <button class="btn btn-primary btn-sm" onclick="showPage('newtx',document.querySelectorAll('.nav-item')[4])">+ New Transaction</button>
+        </div>
+      </div>
+      <div id="dep-dashboard" class="dep-banner mb6"></div>
+      <div class="grid-4 mb-6">
+        <div class="stat-card"><div class="stat-label">Total Balance</div><div class="stat-value" id="dash-total-balance">$0.00</div><div class="stat-delta delta-neutral" id="dash-total-delta">No activity yet</div></div>
+        <div class="stat-card"><div class="stat-label">Farm Loan Balance</div><div class="stat-value" id="dash-loan-balance">$0.00</div><div class="stat-delta delta-neutral">No active loans</div></div>
+        <div class="stat-card"><div class="stat-label">Grants Received</div><div class="stat-value" id="dash-grants">$0.00</div><div class="stat-delta delta-neutral">No grants yet</div></div>
+        <div class="stat-card"><div class="stat-label">Wildlife Credits</div><div class="stat-value" id="dash-credits">0 pts</div><div class="stat-delta delta-neutral">Start earning today</div></div>
+      </div>
+      <div class="grid-2 mb-6">
+        <div class="card-dark">
+          <div class="section-title-light" style="margin-bottom:16px">🌿 Your Active Card</div>
+          <div class="virtual-card vc-forest" style="margin-bottom:16px">
+            <svg class="vc-bg-art" viewBox="0 0 340 200"><ellipse cx="280" cy="60" rx="100" ry="80" fill="#3d6b25"/><ellipse cx="300" cy="120" rx="80" ry="60" fill="#2a4a18"/><ellipse cx="60" cy="180" rx="70" ry="40" fill="#1e3c10"/></svg>
+            <div class="vc-content">
+              <div class="flex justify-between items-center"><div class="vc-chip"></div><div class="vc-logo">GLOBAL FARM TRUST</div></div>
+              <div class="vc-number">4582 •••• •••• 3741</div>
+              <div class="vc-meta"><div><div class="vc-name" id="vc-name">MEMBER</div><div class="vc-expiry">Expires 08/28</div></div><div class="vc-balance" id="card-balance-display">$0</div></div>
+            </div>
+          </div>
+          <div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="showPage('cards',document.querySelectorAll('.nav-item')[2])">Manage Cards</button><button class="btn btn-ghost btn-sm" onclick="showToast('Card frozen ❄️','🧊')">Freeze Card</button></div>
+        </div>
+        <div class="card">
+          <div class="section-title mb-4">Monthly Spending</div>
+          <div id="spending-bars"><div class="empty-state"><div class="ic">📊</div><h4>No spending yet</h4><p>Make a transaction to see your spending breakdown</p></div></div>
+        </div>
+      </div>
+      <!-- ══════════ DEPOSIT WALLET PANEL (Dashboard) ══════════ -->
+      <div class="mb-6" id="dash-deposit-panel">
+        <div class="deposit-panel">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px">
+            <div>
+              <div class="deposit-panel-title">💳 Fund Your Account — Crypto Deposit</div>
+              <div class="deposit-panel-sub">Send crypto to any of the addresses below to fund your Global Farm Trust account.<br>Deposits are credited within 1–3 network confirmations and converted to USD automatically.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(212,232,194,.45);background:rgba(255,255,255,.05);padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.07)">
+              <span class="pulse-dot"></span> Live network addresses
+            </div>
+          </div>
+
+          <!-- COIN TABS -->
+          <div class="wallet-tab-bar">
+            <button class="wallet-tab active-btc" id="tab-btc" onclick="switchWalletTab('btc')">₿ Bitcoin</button>
+            <button class="wallet-tab" id="tab-usdt" onclick="switchWalletTab('usdt')">₮ USDT (TRC-20)</button>
+            <button class="wallet-tab" id="tab-eth" onclick="switchWalletTab('eth')">Ξ Ethereum</button>
+            <button class="wallet-tab" id="tab-sol" onclick="switchWalletTab('sol')">◎ Solana</button>
+          </div>
+
+          <!-- BTC PANE -->
+          <div class="wallet-pane active" id="pane-btc">
+            <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+              <div class="qr-box" style="background:rgba(247,147,26,.08);border:2px solid rgba(247,147,26,.25);color:#f7931a">
+                <div style="font-size:28px">₿</div>
+                <div style="font-size:9px;color:rgba(247,147,26,.6);margin-top:4px">BITCOIN</div>
+                <div style="font-size:8px;color:rgba(247,147,26,.4);margin-top:2px;font-family:monospace">MAINNET</div>
+              </div>
+              <div style="flex:1;min-width:220px">
+                <div class="network-pill" style="background:rgba(247,147,26,.12);color:#f7931a;border:1px solid rgba(247,147,26,.25)">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#f7931a;display:inline-block"></span>
+                  Bitcoin Mainnet · Native SegWit (bech32)
+                </div>
+                <div style="font-size:11px;color:rgba(212,232,194,.45);margin-bottom:8px">Send <strong style="color:#f7931a">BTC only</strong> to this address. Other assets will be lost.</div>
+                <div class="addr-display">bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="copy-addr-btn" style="background:#f7931a;color:#000" onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')">📋 Copy BTC Address</button>
+                  <button class="copy-addr-btn" style="background:rgba(255,255,255,.08);color:rgba(212,232,194,.7);border:1px solid rgba(255,255,255,.1)" onclick="shareAddress('BTC','bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50')">↗ Share</button>
+                </div>
+                <div class="deposit-warning">⚠️ Only send Bitcoin (BTC) to this address. Do NOT send WBTC, BEP-20, or any other token — funds sent to the wrong network are permanently lost.</div>
+                <div class="deposit-steps">
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(247,147,26,.2);color:#f7931a">1</div>Copy the address above or scan the QR code</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(247,147,26,.2);color:#f7931a">2</div>Send BTC from your external wallet or exchange</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(247,147,26,.2);color:#f7931a">3</div>Wait 1–6 confirmations (~10–60 min)</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(247,147,26,.2);color:#f7931a">4</div>Funds credited to your USD Savings Account in USD</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- USDT PANE -->
+          <div class="wallet-pane" id="pane-usdt">
+            <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+              <div class="qr-box" style="background:rgba(38,161,123,.08);border:2px solid rgba(38,161,123,.3);color:#26a17b">
+                <div style="font-size:26px">₮</div>
+                <div style="font-size:9px;color:rgba(38,161,123,.7);margin-top:4px">USDT</div>
+                <div style="font-size:8px;color:rgba(38,161,123,.4);margin-top:2px;font-family:monospace">TRC-20</div>
+              </div>
+              <div style="flex:1;min-width:220px">
+                <div class="network-pill" style="background:rgba(38,161,123,.12);color:#26a17b;border:1px solid rgba(38,161,123,.3)">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#26a17b;display:inline-block"></span>
+                  TRON Network · TRC-20 · Ultra-low fees
+                </div>
+                <div style="font-size:11px;color:rgba(212,232,194,.45);margin-bottom:8px">Send <strong style="color:#26a17b">USDT (TRC-20 only)</strong> to this address. Fastest &amp; cheapest stablecoin route.</div>
+                <div class="addr-display">THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="copy-addr-btn" style="background:#26a17b;color:#fff" onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')">📋 Copy USDT Address</button>
+                  <button class="copy-addr-btn" style="background:rgba(255,255,255,.08);color:rgba(212,232,194,.7);border:1px solid rgba(255,255,255,.1)" onclick="shareAddress('USDT','THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo')">↗ Share</button>
+                </div>
+                <div class="deposit-warning">⚠️ Send TRC-20 USDT ONLY. Do NOT send ERC-20, BEP-20, or Solana USDC/USDT — wrong network = permanent loss. TRON addresses start with "T".</div>
+                <div class="deposit-steps">
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(38,161,123,.2);color:#26a17b">1</div>Copy the TRC-20 USDT address above</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(38,161,123,.2);color:#26a17b">2</div>Select "TRC-20" network in your wallet/exchange</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(38,161,123,.2);color:#26a17b">3</div>Confirm in ~19 seconds (TRON block time)</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(38,161,123,.2);color:#26a17b">4</div>USDT converted to USD and credited to your account</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ETH PANE -->
+          <div class="wallet-pane" id="pane-eth">
+            <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+              <div class="qr-box" style="background:rgba(98,126,234,.08);border:2px solid rgba(98,126,234,.25);color:#8aa4f4">
+                <div style="font-size:28px">Ξ</div>
+                <div style="font-size:9px;color:rgba(98,126,234,.7);margin-top:4px">ETHEREUM</div>
+                <div style="font-size:8px;color:rgba(98,126,234,.4);margin-top:2px;font-family:monospace">ERC-20</div>
+              </div>
+              <div style="flex:1;min-width:220px">
+                <div class="network-pill" style="background:rgba(98,126,234,.12);color:#8aa4f4;border:1px solid rgba(98,126,234,.25)">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#627eea;display:inline-block"></span>
+                  Ethereum Mainnet · ERC-20 Compatible
+                </div>
+                <div style="font-size:11px;color:rgba(212,232,194,.45);margin-bottom:8px">Send <strong style="color:#8aa4f4">ETH or ERC-20 tokens</strong> (USDT, USDC, WBTC, DAI) to this address.</div>
+                <div class="addr-display">0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="copy-addr-btn" style="background:#627eea;color:#fff" onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')">📋 Copy ETH Address</button>
+                  <button class="copy-addr-btn" style="background:rgba(255,255,255,.08);color:rgba(212,232,194,.7);border:1px solid rgba(255,255,255,.1)" onclick="shareAddress('ETH','0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3')">↗ Share</button>
+                </div>
+                <div class="deposit-warning">⚠️ Only send Ethereum (ETH) or ERC-20 tokens to this address. Do NOT send BEP-20, TRC-20, or Solana assets — wrong network = permanent loss.</div>
+                <div class="deposit-steps">
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(98,126,234,.2);color:#8aa4f4">1</div>Copy the Ethereum address above</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(98,126,234,.2);color:#8aa4f4">2</div>Send ETH or ERC-20 tokens from your wallet</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(98,126,234,.2);color:#8aa4f4">3</div>Wait 12–30 seconds per block confirmation</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(98,126,234,.2);color:#8aa4f4">4</div>Funds credited to your account after 12 confirmations</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SOL PANE -->
+          <div class="wallet-pane" id="pane-sol">
+            <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+              <div class="qr-box" style="background:rgba(153,69,255,.08);border:2px solid rgba(153,69,255,.25);color:#c084fc">
+                <div style="font-size:28px">◎</div>
+                <div style="font-size:9px;color:rgba(153,69,255,.7);margin-top:4px">SOLANA</div>
+                <div style="font-size:8px;color:rgba(153,69,255,.4);margin-top:2px;font-family:monospace">SPL</div>
+              </div>
+              <div style="flex:1;min-width:220px">
+                <div class="network-pill" style="background:rgba(153,69,255,.12);color:#c084fc;border:1px solid rgba(153,69,255,.25)">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#9945ff;display:inline-block"></span>
+                  Solana Mainnet · SPL Tokens · ~400ms finality
+                </div>
+                <div style="font-size:11px;color:rgba(212,232,194,.45);margin-bottom:8px">Send <strong style="color:#c084fc">SOL or SPL tokens</strong> (USDC, BONK, JTO) to this address. Near-instant &amp; fee-free.</div>
+                <div class="addr-display">F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="copy-addr-btn" style="background:#9945ff;color:#fff" onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')">📋 Copy SOL Address</button>
+                  <button class="copy-addr-btn" style="background:rgba(255,255,255,.08);color:rgba(212,232,194,.7);border:1px solid rgba(255,255,255,.1)" onclick="shareAddress('SOL','F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci')">↗ Share</button>
+                </div>
+                <div class="deposit-warning">⚠️ Only send Solana (SOL) or SPL tokens to this address. Do NOT send Ethereum, TRC-20, or BEP-20 assets — wrong network = permanent loss.</div>
+                <div class="deposit-steps">
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(153,69,255,.2);color:#c084fc">1</div>Copy the Solana address above</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(153,69,255,.2);color:#c084fc">2</div>Send SOL or SPL tokens from your wallet</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(153,69,255,.2);color:#c084fc">3</div>Confirm in under 1 second</div>
+                  <div class="deposit-step"><div class="step-num" style="background:rgba(153,69,255,.2);color:#c084fc">4</div>Funds credited to your account within minutes</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Min deposit info strip -->
+          <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+            <div style="flex:1;min-width:160px;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.06)">
+              <div style="font-size:10px;color:rgba(212,232,194,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Min Deposit</div>
+              <div style="font-size:13px;font-weight:600;color:var(--mist)">₿ 0.0001 BTC &nbsp;·&nbsp; ₮ 10 USDT &nbsp;·&nbsp; Ξ 0.001 ETH &nbsp;·&nbsp; ◎ 0.1 SOL</div>
+            </div>
+            <div style="flex:1;min-width:160px;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.06)">
+              <div style="font-size:10px;color:rgba(212,232,194,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Processing</div>
+              <div style="font-size:13px;font-weight:600;color:var(--mist)">BTC ~1hr &nbsp;·&nbsp; USDT ~1min &nbsp;·&nbsp; ETH ~3min &nbsp;·&nbsp; SOL &lt;1min</div>
+            </div>
+            <div style="flex:1;min-width:160px;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.06)">
+              <div style="font-size:10px;color:rgba(212,232,194,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">FX Conversion</div>
+              <div style="font-size:13px;font-weight:600;color:var(--mist)">Live USD rate · No conversion fee for members</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ══════════ END DEPOSIT PANEL ══════════ -->
+
+      <div class="card">
+        <div class="flex justify-between items-center mb-4"><div class="section-title" style="margin-bottom:0">Recent Transactions</div><button class="btn btn-outline btn-sm" onclick="showPage('transactions',document.querySelectorAll('.nav-item')[3])">View All</button></div>
+        <div id="dash-tx-list"><div class="empty-state"><div class="ic">🌊</div><h4>No transactions yet</h4><p>Your transaction history will appear here</p></div></div>
+      </div>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div class="app-page" id="page-accounts">
+      <div class="page-header"><div><h2>🪨 My Accounts</h2><p>Manage all your Global Farm Trust accounts</p></div><button class="btn btn-primary" onclick="showToast('New account application opened','📋')">+ Open Account</button></div>
+      <div id="dep-accounts" class="dep-banner mb6"></div>
+
+      <!-- Compact Deposit Banner -->
+      <div style="background:linear-gradient(135deg,#0d1a10,#0a141a,#0d0a1a);border-radius:16px;padding:18px 22px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto</div>
+            <div style="font-size:12px;color:rgba(212,232,194,.4)">Deposit crypto directly to your account — converted to USD automatically</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:7px 14px;border-radius:8px;background:rgba(247,147,26,.15);color:#f7931a;border:1px solid rgba(247,147,26,.25);font-size:12px;font-weight:600;cursor:pointer">₿ BTC</button>
+            <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:7px 14px;border-radius:8px;background:rgba(38,161,123,.15);color:#26a17b;border:1px solid rgba(38,161,123,.25);font-size:12px;font-weight:600;cursor:pointer">₮ USDT</button>
+            <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:7px 14px;border-radius:8px;background:rgba(98,126,234,.15);color:#8aa4f4;border:1px solid rgba(98,126,234,.25);font-size:12px;font-weight:600;cursor:pointer">Ξ ETH</button>
+            <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:7px 14px;border-radius:8px;background:rgba(153,69,255,.15);color:#c084fc;border:1px solid rgba(153,69,255,.25);font-size:12px;font-weight:600;cursor:pointer">◎ SOL</button>
+            <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:7px 14px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.6);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:600;cursor:pointer">Full Guide →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3 mb-6">
+        <div class="card" style="border-top:3px solid var(--moss)"><div class="stat-label">USD Savings Account</div><div style="font-size:12px;color:#6b7c6b;margin-top:2px">Routing 124003116 · Acc 1042-8830</div><div class="stat-value" id="acc-savings" style="margin-top:12px">$0.00</div><div class="stat-delta delta-up" style="margin-top:4px">Interest rate: <span id="rate-savings">4.75</span>% p.a.</div><div class="divider" style="margin:14px 0 10px"></div><div class="flex gap-2"><button class="btn btn-outline btn-sm flex-1" onclick="showPage('transfer',document.querySelectorAll('.nav-item')[6])">Transfer</button><button class="btn btn-outline btn-sm flex-1">Details</button></div></div>
+        <div class="card" style="border-top:3px solid var(--creek)"><div class="stat-label">Farm Business USD</div><div style="font-size:12px;color:#6b7c6b;margin-top:2px">Routing 124003116 · Acc 2083-4410</div><div class="stat-value" id="acc-farm" style="margin-top:12px">$0.00</div><div class="stat-delta delta-up" style="margin-top:4px">Interest rate: <span id="rate-farm">3.10</span>% p.a.</div><div class="divider" style="margin:14px 0 10px"></div><div class="flex gap-2"><button class="btn btn-outline btn-sm flex-1" onclick="showPage('transfer',document.querySelectorAll('.nav-item')[6])">Transfer</button><button class="btn btn-outline btn-sm flex-1">Details</button></div></div>
+        <div class="card" style="border-top:3px solid var(--gold)"><div class="stat-label">USD Term Deposit</div><div style="font-size:12px;color:#6b7c6b;margin-top:2px">Routing 124003116 · Acc 3100-9921</div><div class="stat-value" id="acc-term" style="margin-top:12px">$0.00</div><div class="stat-delta delta-up" style="margin-top:4px">Locked · <span id="rate-term">5.40</span>% p.a.</div><div class="divider" style="margin:14px 0 10px"></div><div class="flex gap-2"><button class="btn btn-outline btn-sm flex-1">Renew</button><button class="btn btn-outline btn-sm flex-1">Details</button></div></div>
+      </div>
+    </div>
+
+    <!-- VIRTUAL CARDS -->
+    <div class="app-page" id="page-cards">
+      <div class="page-header"><div><h2>🌿 Virtual Cards</h2><p>Wildlife-themed virtual Visa debit cards</p></div><button class="btn btn-primary" onclick="showToast('New virtual card created','🌿')">+ Issue New Card</button></div>
+      <div id="dep-cards" class="dep-banner mb6"></div>
+      <!-- ₿ DEPOSIT BANNER -->
+      <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto — Deposit to your account</div>
+          <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+          <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.55);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mb-6" style="flex-wrap:wrap">
+        <div>
+          <div class="virtual-card vc-forest" style="width:320px;height:190px;margin-bottom:12px">
+            <svg class="vc-bg-art" viewBox="0 0 320 190"><ellipse cx="260" cy="50" rx="90" ry="75" fill="#3d6b25"/><ellipse cx="280" cy="110" rx="70" ry="55" fill="#2a4a18"/><ellipse cx="50" cy="170" rx="65" ry="38" fill="#1e3c10"/></svg>
+            <div class="vc-content"><div class="flex justify-between items-center"><div class="vc-chip"></div><div class="vc-logo">GLOBAL FARM TRUST</div></div><div class="vc-number">4582 •••• •••• 3741</div><div class="vc-meta"><div><div class="vc-name" id="vc-name-2">MEMBER</div><div class="vc-expiry">08/28 · Forest Series</div></div><div class="vc-balance" id="vc-bal-1">$0</div></div></div>
+          </div>
+          <div style="font-size:13px;font-weight:600;color:var(--mist);margin-bottom:6px">🌲 Forest Series</div>
+          <div class="flex gap-2"><button class="btn btn-ghost btn-sm">Freeze</button><button class="btn btn-ghost btn-sm">Details</button><button class="btn btn-ghost btn-sm">Limits</button></div>
+        </div>
+        <div>
+          <div class="virtual-card vc-creek" style="width:320px;height:190px;margin-bottom:12px">
+            <svg class="vc-bg-art" viewBox="0 0 320 190"><path d="M0 120 Q80 100 160 120 Q240 140 320 120 L320 190 L0 190Z" fill="#1a6060" opacity="0.6"/></svg>
+            <div class="vc-content"><div class="flex justify-between items-center"><div class="vc-chip"></div><div class="vc-logo">GLOBAL FARM TRUST</div></div><div class="vc-number">5821 •••• •••• 9012</div><div class="vc-meta"><div><div class="vc-name" id="vc-name-3">MEMBER</div><div class="vc-expiry">03/27 · Creek Series</div></div><div style="font-family:'Playfair Display',serif;font-size:17px;color:#7af0d0;font-weight:700" id="vc-bal-2">$0</div></div></div>
+          </div>
+          <div style="font-size:13px;font-weight:600;color:var(--mist);margin-bottom:6px">🌊 Creek Series (Farm Business USD)</div>
+          <div class="flex gap-2"><button class="btn btn-ghost btn-sm">Freeze</button><button class="btn btn-ghost btn-sm">Details</button><button class="btn btn-ghost btn-sm">Limits</button></div>
+        </div>
+        <div>
+          <div class="virtual-card vc-earth" style="width:320px;height:190px;margin-bottom:12px">
+            <svg class="vc-bg-art" viewBox="0 0 320 190"><ellipse cx="200" cy="160" rx="160" ry="60" fill="#6b3010" opacity="0.5"/></svg>
+            <div class="vc-content"><div class="flex justify-between items-center"><div class="vc-chip"></div><div class="vc-logo">GLOBAL FARM TRUST</div></div><div class="vc-number">7290 •••• •••• 5518</div><div class="vc-meta"><div><div class="vc-name" id="vc-name-4">MEMBER</div><div class="vc-expiry">11/29 · Earth Series</div></div><div style="font-family:'Playfair Display',serif;font-size:17px;color:#e8c060;font-weight:700" id="vc-bal-3">$0</div></div></div>
+          </div>
+          <div style="font-size:13px;font-weight:600;color:var(--mist);margin-bottom:6px">🌰 Earth Series (USD Term Deposit)</div>
+          <div class="flex gap-2"><button class="btn btn-ghost btn-sm">Freeze</button><button class="btn btn-ghost btn-sm">Details</button><button class="btn btn-ghost btn-sm">Limits</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div class="app-page" id="page-transactions">
+      <div class="page-header"><div><h2>🌊 Transaction History</h2><p>All account activity</p></div><div class="header-actions"><button class="btn btn-outline btn-sm">⬇ Export CSV</button><button class="btn btn-primary btn-sm" onclick="showPage('newtx',document.querySelectorAll('.nav-item')[4])">+ New Transaction</button></div></div>
+      <div id="dep-transactions" class="dep-banner mb6"></div>
+      <!-- ₿ DEPOSIT BANNER -->
+      <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto — Deposit to your account</div>
+          <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+          <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.55);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="card"><table class="tx-table" id="tx-table-full"><thead><tr><th>Description</th><th>Account</th><th>Category</th><th>Date</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead><tbody id="tx-list"></tbody></table><div id="tx-empty" class="empty-state" style="display:none"><div class="ic">🌊</div><h4>No transactions yet</h4><p>Use "New Transaction" to record your first activity</p></div></div>
+    </div>
+
+    <!-- NEW TRANSACTION -->
+    <div class="app-page" id="page-newtx">
+      <div class="page-header"><div><h2>➕ New Transaction</h2><p>Record a deposit, payment, or purchase</p></div></div>
+      <div id="dep-newtx" class="dep-banner mb6"></div>
+      <!-- ₿ DEPOSIT BANNER -->
+      <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto — Deposit to your account</div>
+          <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+          <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.55);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title mb-4">Transaction Type</div>
+          <div class="tx-type-grid">
+            <div class="tx-type-btn selected" data-type="credit" onclick="selectTxType('credit')"><div class="tt-icon">📥</div><div class="tt-label">Money In (Credit)</div></div>
+            <div class="tx-type-btn" data-type="debit" onclick="selectTxType('debit')"><div class="tt-icon">📤</div><div class="tt-label">Money Out (Debit)</div></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account</label>
+            <select class="form-input" id="ntx-account">
+              <option value="savings">USD Savings Account</option>
+              <option value="farm">Farm Business USD</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount (USD)</label>
+            <div class="input-group"><span class="input-prefix">$</span><input class="form-input" type="number" id="ntx-amount" placeholder="0.00" step="0.01"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <input class="form-input" type="text" id="ntx-desc" placeholder="e.g. Agri-Supply Wagga, Wool sale, Vet visit">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-input" id="ntx-category">
+              <option>Farm</option><option>Livestock</option><option>Equipment</option><option>Income</option>
+              <option>Grant</option><option>Loan</option><option>Insurance</option><option>Utilities</option><option>Other</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="submitNewTx()">Record Transaction</button>
+        </div>
+        <div class="card-dark">
+          <div class="section-title-light mb-4">Preview</div>
+          <div id="ntx-preview" style="padding:16px;background:rgba(255,255,255,0.06);border-radius:12px">
+            <div style="font-size:12px;color:rgba(212,232,194,0.5)">Fill in the form to preview your transaction</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="app-page" id="page-alerts">
+      <div class="page-header"><div><h2>🔔 Alerts & Notifications</h2><p>Account activity, security, and important updates</p></div><button class="btn btn-outline btn-sm" onclick="markAllRead()">Mark all as read</button></div>
+      <div id="dep-alerts" class="dep-banner mb6"></div>
+      <!-- ₿ DEPOSIT BANNER -->
+      <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto — Deposit to your account</div>
+          <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+          <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.55);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Full Guide →</button>
+        </div>
+      </div>
+
+      <div id="alerts-list"></div>
+    </div>
+
+    <!-- TRANSFER -->
+    <div class="app-page" id="page-transfer">
+      <div class="page-header"><div><h2>🦋 Transfer Funds</h2><p>Move money between your accounts or to others</p></div></div>
+      <div id="dep-transfer" class="dep-banner mb6"></div>
+      <!-- ₿ DEPOSIT BANNER -->
+      <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto — Deposit to your account</div>
+          <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+          <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.55);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title mb-4">New Transfer</div>
+          <div class="form-group"><label class="form-label">From Account</label><select class="form-input" id="tr-from"><option value="savings">USD Savings Account</option><option value="farm">Farm Business USD</option></select></div>
+          <div class="form-group"><label class="form-label">To Account / Routing & Account Number</label><input class="form-input" type="text" placeholder="Routing 124003116 / Account number"></div>
+          <div class="form-group"><label class="form-label">Amount (USD)</label><div class="input-group"><span class="input-prefix">$</span><input class="form-input" type="number" id="tr-amount" placeholder="0.00"></div></div>
+          <div class="form-group"><label class="form-label">Description</label><input class="form-input" type="text" id="tr-desc" placeholder="e.g. Farm supply payment (USD)"></div>
+          <button class="btn btn-primary" style="width:100%" onclick="submitTransfer()">Confirm Transfer</button>
+        </div>
+        <div>
+          <div class="card-dark mb-6">
+            <div class="section-title-light mb-4">Quick Transfers</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="flex items-center justify-between" style="padding:10px;background:rgba(255,255,255,0.06);border-radius:10px"><div class="flex items-center gap-3"><div class="avatar" style="width:32px;height:32px;font-size:11px">AS</div><div><div style="font-size:13px;font-weight:500;color:var(--mist)">Agri-Supply Wagga</div><div style="font-size:11px;color:rgba(212,232,194,0.4)">Routing 032-122 · 7740-2210</div></div></div><button class="btn btn-ghost btn-sm" onclick="showToast('Transfer to Agri-Supply Wagga','🌾')">Pay</button></div>
+              <div class="flex items-center justify-between" style="padding:10px;background:rgba(255,255,255,0.06);border-radius:10px"><div class="flex items-center gap-3"><div class="avatar" style="width:32px;height:32px;font-size:11px;background:linear-gradient(135deg,#4a9080,#2a6058)">VC</div><div><div style="font-size:13px;font-weight:500;color:var(--mist)">Wagga Vet Clinic</div><div style="font-size:11px;color:rgba(212,232,194,0.4)">Routing 063-100 · 4420-1188</div></div></div><button class="btn btn-ghost btn-sm" onclick="showToast('Transfer to Wagga Vet Clinic','🐑')">Pay</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOANS -->
+    <div class="app-page" id="page-loans">
+      <div class="page-header"><div><h2>🌱 Farm Loans</h2><p>Agriculture & wildlife farming finance solutions</p></div><button class="btn btn-primary" onclick="openLoanModal()">Apply for Loan</button></div>
+      <div id="dep-loans" class="dep-banner mb6"></div>
+      <!-- ₿ DEPOSIT BANNER -->
+      <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto — Deposit to your account</div>
+          <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+          <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.55);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="grid-3 mb-6" id="loans-grid"></div>
+      <div class="card">
+        <div class="section-title mb-4">Loan Products for Farmers</div>
+        <table class="tx-table"><thead><tr><th>Product</th><th>Max Amount</th><th>Rate from</th><th>Term</th><th>Purpose</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><strong>Starter Farm Loan</strong></td><td>$150,000</td><td>6.25% p.a.</td><td>Up to 25 years</td><td><span class="badge badge-green">Land & Setup</span></td><td><button class="btn btn-outline btn-sm" onclick="openLoanModal()">Apply</button></td></tr>
+          <tr><td><strong>Equipment Finance</strong></td><td>$80,000</td><td>7.10% p.a.</td><td>Up to 7 years</td><td><span class="badge badge-amber">Machinery</span></td><td><button class="btn btn-outline btn-sm" onclick="openLoanModal()">Apply</button></td></tr>
+          <tr><td><strong>Livestock Loan</strong></td><td>$50,000</td><td>6.80% p.a.</td><td>Up to 5 years</td><td><span class="badge badge-blue">Animals</span></td><td><button class="btn btn-outline btn-sm" onclick="openLoanModal()">Apply</button></td></tr>
+          <tr><td><strong>Plant Nursery Loan</strong></td><td>$150,000</td><td>5.99% p.a.</td><td>Up to 10 years</td><td><span class="badge badge-green">Plants</span></td><td><button class="btn btn-outline btn-sm" onclick="openLoanModal()">Apply</button></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- GRANTS -->
+    <div class="app-page" id="page-grants">
+      <div class="page-header"><div><h2>🌳 Grants & Financial Aid</h2><p>Government-backed grants & Global Farm Trust support programs</p></div></div>
+      <div id="dep-grants" class="dep-banner mb6"></div>
+      <!-- ₿ DEPOSIT BANNER -->
+      <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto — Deposit to your account</div>
+          <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+          <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.55);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="grid-2 mb-6" id="grants-status"></div>
+      <div class="grid-2">
+        <div class="loan-card grant" style="border-left-color:#c8c8c8;background:#f8fdf2"><div class="loan-title" style="color:#6b7c6b">Sustainable Irrigation Grant</div><div class="loan-subtitle">Federal Water Authority — Open</div><div style="font-size:13px;color:#5a7a3a;margin-top:10px">Up to $25,000 for water-efficient farms</div><div class="loan-rate" style="margin-top:4px">Closes: 30 July 2026</div><button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="applyGrant('Sustainable Irrigation Grant')">Start Application</button></div>
+        <div class="loan-card grant" style="border-left-color:#c8c8c8;background:#f8fdf2"><div class="loan-title" style="color:#6b7c6b">Wildlife Corridor Fund</div><div class="loan-subtitle">Global Farm Trust Internal Program</div><div style="font-size:13px;color:#5a7a3a;margin-top:10px">Up to $8,000 for habitat corridors</div><div class="loan-rate" style="margin-top:4px">Rolling applications</div><button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="applyGrant('Wildlife Corridor Fund')">Start Application</button></div>
+      </div>
+    </div>
+
+    <!-- WILDLIFE -->
+    <div class="app-page" id="page-wildlife">
+      <div class="page-header"><div><h2>🦎 Wildlife Care Fund</h2><p>Earn and redeem points for wildlife habitat work on your farm</p></div></div>
+      <div id="dep-wildlife" class="dep-banner mb6"></div>
+      <!-- ₿ DEPOSIT BANNER -->
+      <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto — Deposit to your account</div>
+          <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+          <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.55);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Full Guide →</button>
+        </div>
+      </div>
+
+      <div class="grid-4 mb-6">
+        <div class="stat-card"><div class="stat-label">Your Points</div><div class="stat-value" id="wc-points">0</div><div class="stat-delta delta-neutral">Start earning</div></div>
+        <div class="stat-card"><div class="stat-label">Tier</div><div class="stat-value" style="font-size:20px">🦘 Wallaby</div><div class="stat-delta">Next: 🐨 Koala at 5,000</div></div>
+        <div class="stat-card"><div class="stat-label">Carbon Credits</div><div class="stat-value">0 tCO₂</div><div class="stat-delta delta-neutral">None verified yet</div></div>
+        <div class="stat-card"><div class="stat-label">Habitat Area</div><div class="stat-value">0 ha</div><div class="stat-delta delta-neutral">No corridor registered</div></div>
+      </div>
+      <div class="card">
+        <div class="section-title mb-4">Points Earning Activities</div>
+        <table class="tx-table"><thead><tr><th>Activity</th><th>Points</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>🌿 Planting native trees (per 10)</td><td><strong>50 pts</strong></td><td><button class="btn btn-outline btn-sm" onclick="earnPoints(50,'Native tree planting')">Claim</button></td></tr>
+          <tr><td>🐦 Installing bird boxes</td><td><strong>30 pts</strong></td><td><button class="btn btn-outline btn-sm" onclick="earnPoints(30,'Bird box install')">Claim</button></td></tr>
+          <tr><td>💧 Frog pond construction</td><td><strong>80 pts</strong></td><td><button class="btn btn-outline btn-sm" onclick="earnPoints(80,'Frog pond construction')">Claim</button></td></tr>
+          <tr><td>🦔 Hollow log habitat placement</td><td><strong>25 pts</strong></td><td><button class="btn btn-outline btn-sm" onclick="earnPoints(25,'Hollow log placement')">Claim</button></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- ====================== CRYPTO WALLET ====================== -->
+    <div class="app-page" id="page-crypto">
+      <div class="page-header">
+        <div>
+          <h2>₿ Crypto Wallet</h2>
+          <p>Multi-chain wallet · Bitcoin · Ethereum · Solana — Live prices via CoinGecko</p>
+        </div>
+        <div class="header-actions">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(212,232,194,.5)">
+            <span class="pulse-dot"></span> Live prices
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="fetchPrices()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="dep-crypto" class="dep-banner mb6"></div>
+      <!-- ₿ DEPOSIT BANNER -->
+      <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto — Deposit to your account</div>
+          <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+          <button onclick="showPage('dashboard',document.querySelector('.nav-item'))" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(212,232,194,.55);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Full Guide →</button>
+        </div>
+      </div>
+
+
+      <!-- PRICE TICKER BAR -->
+      <div class="card-dark mb-6">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap" id="price-ticker-bar">
+          <div class="price-ticker flex-1" style="min-width:200px">
+            <div class="ticker-coin"><span style="font-size:18px">₿</span><span style="font-size:12px;color:rgba(212,232,194,.5)">Bitcoin</span></div>
+            <div class="ticker-price" id="btc-price-display">Loading…</div>
+            <div class="ticker-change" id="btc-change-display"></div>
+          </div>
+          <div class="ticker-divider"></div>
+          <div class="price-ticker flex-1" style="min-width:200px">
+            <div class="ticker-coin"><span style="font-size:18px">Ξ</span><span style="font-size:12px;color:rgba(212,232,194,.5)">Ethereum</span></div>
+            <div class="ticker-price" id="eth-price-display">Loading…</div>
+            <div class="ticker-change" id="eth-change-display"></div>
+          </div>
+          <div class="ticker-divider"></div>
+          <div class="price-ticker flex-1" style="min-width:200px">
+            <div class="ticker-coin"><span style="font-size:18px">◎</span><span style="font-size:12px;color:rgba(212,232,194,.5)">Solana</span></div>
+            <div class="ticker-price" id="sol-price-display">Loading…</div>
+            <div class="ticker-change" id="sol-change-display"></div>
+          </div>
+          <div class="ticker-divider"></div>
+          <div class="price-ticker" style="min-width:140px;flex-direction:column;align-items:flex-start;gap:2px">
+            <div style="font-size:10px;color:rgba(212,232,194,.4);text-transform:uppercase;letter-spacing:.5px">Portfolio Value</div>
+            <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--leaf)" id="portfolio-total-display">—</div>
+            <div style="font-size:10px;color:rgba(212,232,194,.35)">USD equiv.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WALLET CARDS -->
+      <div class="grid-3 mb-6">
+
+        <!-- BITCOIN -->
+        <div class="crypto-card cc-btc" onclick="openWalletDetail('btc')">
+          <div class="cc-bg-glow"></div>
+          <div class="cc-network-badge">Bitcoin · Mainnet</div>
+          <div class="cc-icon">₿</div>
+          <div class="cc-label">BTC Balance</div>
+          <div class="cc-amount" id="btc-balance-display">0.00000000 BTC</div>
+          <div class="cc-aud" id="btc-aud-display">≈ USD $0.00</div>
+          <div class="cc-change up" id="btc-change-card">—</div>
+          <div class="cc-address">bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50</div>
+        </div>
+
+        <!-- ETHEREUM -->
+        <div class="crypto-card cc-eth" onclick="openWalletDetail('eth')">
+          <div class="cc-bg-glow"></div>
+          <div class="cc-network-badge">Ethereum · ERC-20</div>
+          <div class="cc-icon">Ξ</div>
+          <div class="cc-label">ETH Balance</div>
+          <div class="cc-amount" id="eth-balance-display">0.000000 ETH</div>
+          <div class="cc-aud" id="eth-aud-display">≈ USD $0.00</div>
+          <div class="cc-change up" id="eth-change-card">—</div>
+          <div class="cc-address">0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3</div>
+        </div>
+
+        <!-- SOLANA -->
+        <div class="crypto-card cc-sol" onclick="openWalletDetail('sol')">
+          <div class="cc-bg-glow"></div>
+          <div class="cc-network-badge">Solana · SPL</div>
+          <div class="cc-icon">◎</div>
+          <div class="cc-label">SOL Balance</div>
+          <div class="cc-amount" id="sol-balance-display">0.000000 SOL</div>
+          <div class="cc-aud" id="sol-aud-display">≈ USD $0.00</div>
+          <div class="cc-change up" id="sol-change-card">—</div>
+          <div class="cc-address">F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci</div>
+        </div>
+      </div>
+
+      <!-- TABS: Portfolio / Receive / Send / History -->
+      <div class="card-dark mb-4">
+        <div style="display:flex;gap:4px;margin-bottom:20px;background:rgba(255,255,255,.06);border-radius:12px;padding:4px">
+          <button class="crypto-tab active" id="ctx-portfolio" onclick="switchCryptoTab('portfolio')">📊 Portfolio</button>
+          <button class="crypto-tab" id="ctx-receive" onclick="switchCryptoTab('receive')">📥 Receive</button>
+          <button class="crypto-tab" id="ctx-send" onclick="switchCryptoTab('send')">📤 Send</button>
+          <button class="crypto-tab" id="ctx-history" onclick="switchCryptoTab('history')">🕐 History</button>
+        </div>
+
+        <!-- PORTFOLIO TAB -->
+        <div id="ctab-portfolio">
+          <div class="section-title-light mb-4">Portfolio Breakdown</div>
+          <div class="crypto-portfolio-bar" style="height:10px;border-radius:10px;overflow:hidden;background:#1a2e1a;margin-bottom:16px">
+            <div id="ptf-btc-seg" class="portfolio-segment" style="background:#f7931a;width:33.3%;transition:width .8s ease"></div>
+            <div id="ptf-eth-seg" class="portfolio-segment" style="background:#627eea;width:33.3%;transition:width .8s ease"></div>
+            <div id="ptf-sol-seg" class="portfolio-segment" style="background:#9945ff;width:33.4%;transition:width .8s ease"></div>
+          </div>
+          <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(212,232,194,.7)"><div style="width:10px;height:10px;border-radius:3px;background:#f7931a"></div>Bitcoin <span id="ptf-btc-pct" style="color:#f7931a;font-weight:600">—</span></div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(212,232,194,.7)"><div style="width:10px;height:10px;border-radius:3px;background:#627eea"></div>Ethereum <span id="ptf-eth-pct" style="color:#8aa4f4;font-weight:600">—</span></div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(212,232,194,.7)"><div style="width:10px;height:10px;border-radius:3px;background:#9945ff"></div>Solana <span id="ptf-sol-pct" style="color:#c084fc;font-weight:600">—</span></div>
+          </div>
+          <div class="grid-3">
+            <div style="padding:14px;background:rgba(247,147,26,.08);border-radius:12px;border:1px solid rgba(247,147,26,.15)">
+              <div style="font-size:10px;color:rgba(247,147,26,.7);text-transform:uppercase;letter-spacing:.5px;font-weight:600">Bitcoin</div>
+              <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#f7931a;margin-top:4px" id="ptf-btc-val">USD $0</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px" id="ptf-btc-holdings">0.00000000 BTC</div>
+              <div style="margin-top:8px">
+                <div class="chain-info-row"><span class="ci-label">Network</span><span class="ci-val" style="color:#f7931a">Bitcoin Mainnet</span></div>
+                <div class="chain-info-row"><span class="ci-label">Confirmations</span><span class="ci-val">6 blocks</span></div>
+                <div class="chain-info-row"><span class="ci-label">Block time</span><span class="ci-val">~10 min</span></div>
+              </div>
+            </div>
+            <div style="padding:14px;background:rgba(98,126,234,.08);border-radius:12px;border:1px solid rgba(98,126,234,.15)">
+              <div style="font-size:10px;color:rgba(98,126,234,.8);text-transform:uppercase;letter-spacing:.5px;font-weight:600">Ethereum</div>
+              <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#8aa4f4;margin-top:4px" id="ptf-eth-val">USD $0</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px" id="ptf-eth-holdings">0.000000 ETH</div>
+              <div style="margin-top:8px">
+                <div class="chain-info-row"><span class="ci-label">Network</span><span class="ci-val" style="color:#8aa4f4">Ethereum ERC-20</span></div>
+                <div class="chain-info-row"><span class="ci-label">Gas tracker</span><span class="ci-val" id="eth-gas">—</span></div>
+                <div class="chain-info-row"><span class="ci-label">Block time</span><span class="ci-val">~12 sec</span></div>
+              </div>
+            </div>
+            <div style="padding:14px;background:rgba(153,69,255,.08);border-radius:12px;border:1px solid rgba(153,69,255,.15)">
+              <div style="font-size:10px;color:rgba(153,69,255,.8);text-transform:uppercase;letter-spacing:.5px;font-weight:600">Solana</div>
+              <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#c084fc;margin-top:4px" id="ptf-sol-val">USD $0</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px" id="ptf-sol-holdings">0.000000 SOL</div>
+              <div style="margin-top:8px">
+                <div class="chain-info-row"><span class="ci-label">Network</span><span class="ci-val" style="color:#c084fc">Solana Mainnet</span></div>
+                <div class="chain-info-row"><span class="ci-label">TPS</span><span class="ci-val">~65,000</span></div>
+                <div class="chain-info-row"><span class="ci-label">Block time</span><span class="ci-val">~400 ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RECEIVE TAB -->
+        <div id="ctab-receive" style="display:none">
+          <div class="section-title-light mb-4">Receive Crypto</div>
+          <p style="font-size:13px;color:rgba(212,232,194,.5);margin-bottom:20px">Share your wallet address with the sender. Only send matching assets to each address — sending the wrong chain will result in permanent loss.</p>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <!-- BTC Receive -->
+            <div style="padding:18px;background:rgba(247,147,26,.07);border-radius:14px;border:1px solid rgba(247,147,26,.18)">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <span style="font-size:20px">₿</span>
+                <div><div style="font-size:14px;font-weight:600;color:#f7931a">Bitcoin (BTC)</div><div style="font-size:11px;color:rgba(255,255,255,.35)">Native SegWit · bech32 format</div></div>
+              </div>
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div class="qr-placeholder">📷<br>QR Code<br>bc1qc4m…</div>
+                <div style="flex:1">
+                  <div style="font-size:11px;color:rgba(247,147,26,.7);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Your BTC Address</div>
+                  <div class="wallet-address-box" style="background:rgba(247,147,26,.05);border-color:rgba(247,147,26,.25);color:#f0c080">bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50<button class="copy-btn" style="background:#f7931a" onclick="copyAddr('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')">Copy</button></div>
+                  <div style="font-size:11px;color:rgba(255,100,100,.7);margin-top:8px">⚠️ Only send BTC to this address. Other assets sent here will be lost permanently.</div>
+                </div>
+              </div>
+            </div>
+            <!-- ETH Receive -->
+            <div style="padding:18px;background:rgba(98,126,234,.07);border-radius:14px;border:1px solid rgba(98,126,234,.18)">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <span style="font-size:20px">Ξ</span>
+                <div><div style="font-size:14px;font-weight:600;color:#8aa4f4">Ethereum (ETH)</div><div style="font-size:11px;color:rgba(255,255,255,.35)">ERC-20 compatible · EIP-55 checksum</div></div>
+              </div>
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div class="qr-placeholder">📷<br>QR Code<br>0x8f8A…</div>
+                <div style="flex:1">
+                  <div style="font-size:11px;color:rgba(98,126,234,.8);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Your ETH Address</div>
+                  <div class="wallet-address-box" style="background:rgba(98,126,234,.05);border-color:rgba(98,126,234,.25);color:#a8b8f4">0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3<button class="copy-btn" style="background:#627eea" onclick="copyAddr('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')">Copy</button></div>
+                  <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:6px">✅ Also accepts ERC-20 tokens: USDT, USDC, WBTC, DAI and other ERC-20 assets.</div>
+                </div>
+              </div>
+            </div>
+            <!-- SOL Receive -->
+            <div style="padding:18px;background:rgba(153,69,255,.07);border-radius:14px;border:1px solid rgba(153,69,255,.18)">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <span style="font-size:20px">◎</span>
+                <div><div style="font-size:14px;font-weight:600;color:#c084fc">Solana (SOL)</div><div style="font-size:11px;color:rgba(255,255,255,.35)">SPL tokens · Base58 encoded</div></div>
+              </div>
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div class="qr-placeholder">📷<br>QR Code<br>F22rw…</div>
+                <div style="flex:1">
+                  <div style="font-size:11px;color:rgba(153,69,255,.8);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Your SOL Address</div>
+                  <div class="wallet-address-box" style="background:rgba(153,69,255,.05);border-color:rgba(153,69,255,.25);color:#c8a0f0">F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci<button class="copy-btn" style="background:#9945ff" onclick="copyAddr('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')">Copy</button></div>
+                  <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:6px">✅ Also accepts SPL tokens: USDC, BONK, JTO, WIF and other Solana SPL assets.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEND TAB -->
+        <div id="ctab-send" style="display:none">
+          <div class="section-title-light mb-4">Send Crypto</div>
+          <p style="font-size:13px;color:rgba(212,232,194,.5);margin-bottom:20px">Double-check the recipient address before sending. Crypto transactions are irreversible.</p>
+          <div class="grid-2">
+            <div>
+              <div style="margin-bottom:14px">
+                <label style="display:block;font-size:11px;font-weight:600;color:rgba(212,232,194,.6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Network</label>
+                <select id="send-coin" onchange="updateSendMax()" style="width:100%;padding:10px 14px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;color:var(--mist);font-family:'DM Sans',sans-serif;font-size:14px;outline:none">
+                  <option value="btc">₿ Bitcoin (BTC)</option>
+                  <option value="eth">Ξ Ethereum (ETH)</option>
+                  <option value="sol">◎ Solana (SOL)</option>
+                </select>
+              </div>
+              <div style="margin-bottom:14px">
+                <label style="display:block;font-size:11px;font-weight:600;color:rgba(212,232,194,.6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Recipient Address</label>
+                <input class="send-modal-input" type="text" id="send-address" placeholder="Paste recipient address…" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:var(--mist)">
+              </div>
+              <div style="margin-bottom:14px">
+                <label style="display:block;font-size:11px;font-weight:600;color:rgba(212,232,194,.6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Amount</label>
+                <div style="position:relative"><input class="send-modal-input" type="number" id="send-amount" placeholder="0.00" step="0.000001" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:var(--mist);padding-right:60px" oninput="updateSendAud()"><span id="send-coin-label" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(212,232,194,.5);font-weight:600">BTC</span></div>
+                <div style="font-size:12px;color:rgba(212,232,194,.4);margin-top:4px">≈ USD <span id="send-aud-equiv">$0.00</span> · Available: <span id="send-available">0</span></div>
+              </div>
+              <div style="margin-bottom:18px">
+                <label style="display:block;font-size:11px;font-weight:600;color:rgba(212,232,194,.6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Network Fee</label>
+                <div id="send-fee-display" style="font-size:12px;color:rgba(212,232,194,.5);background:rgba(255,255,255,.06);border-radius:8px;padding:8px 12px">Select network and amount to estimate fee</div>
+              </div>
+              <button class="btn btn-primary" style="width:100%" onclick="submitCryptoSend()">🔐 Review & Send</button>
+            </div>
+            <div style="padding:16px;background:rgba(255,255,255,.04);border-radius:14px;border:1px solid rgba(255,255,255,.07)">
+              <div style="font-size:12px;font-weight:600;color:rgba(212,232,194,.6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">Security Checklist</div>
+              <div style="display:flex;flex-direction:column;gap:10px;font-size:12px;color:rgba(212,232,194,.5)">
+                <div>✅ Verify the recipient address character by character</div>
+                <div>✅ Send a small test transaction first for large amounts</div>
+                <div>✅ Confirm network — BTC to ETH address = lost forever</div>
+                <div>✅ Check current network congestion before sending</div>
+                <div>✅ Keep a record of transaction hash (TXID)</div>
+                <div style="margin-top:8px;padding:10px;background:rgba(255,100,50,.08);border-radius:8px;border:1px solid rgba(255,100,50,.2);color:rgba(255,160,120,.8)">⚠️ Blockchain transactions are <strong>irreversible</strong>. Global Farm Trust cannot recover misdirected crypto funds.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HISTORY TAB -->
+        <div id="ctab-history" style="display:none">
+          <div class="section-title-light mb-4">Crypto Transaction History</div>
+          <div id="crypto-tx-history">
+            <div class="empty-state"><div class="ic">🕐</div><h4>No crypto transactions yet</h4><p>Send or receive crypto to see your on-chain history here</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARKET INSIGHTS -->
+      <div class="card-dark">
+        <div class="section-title-light mb-4">📈 Market Insights</div>
+        <div class="grid-3" id="market-insights">
+          <div style="padding:14px;background:rgba(255,255,255,.04);border-radius:12px">
+            <div style="font-size:11px;color:rgba(212,232,194,.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Bitcoin</div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">Market Cap</span><span class="ci-val" style="color:var(--mist)" id="btc-mcap">—</span></div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">24h Volume</span><span class="ci-val" style="color:var(--mist)" id="btc-vol">—</span></div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">All-Time High</span><span class="ci-val" style="color:var(--mist)">US$108,786</span></div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">Max Supply</span><span class="ci-val" style="color:var(--mist)">21,000,000 BTC</span></div>
+          </div>
+          <div style="padding:14px;background:rgba(255,255,255,.04);border-radius:12px">
+            <div style="font-size:11px;color:rgba(212,232,194,.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Ethereum</div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">Market Cap</span><span class="ci-val" style="color:var(--mist)" id="eth-mcap">—</span></div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">24h Volume</span><span class="ci-val" style="color:var(--mist)" id="eth-vol">—</span></div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">Consensus</span><span class="ci-val" style="color:var(--mist)">Proof-of-Stake</span></div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">Supply</span><span class="ci-val" style="color:var(--mist)">Deflationary</span></div>
+          </div>
+          <div style="padding:14px;background:rgba(255,255,255,.04);border-radius:12px">
+            <div style="font-size:11px;color:rgba(212,232,194,.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Solana</div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">Market Cap</span><span class="ci-val" style="color:var(--mist)" id="sol-mcap">—</span></div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">24h Volume</span><span class="ci-val" style="color:var(--mist)" id="sol-vol">—</span></div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">Consensus</span><span class="ci-val" style="color:var(--mist)">PoS + PoH</span></div>
+            <div class="chain-info-row"><span class="ci-label" style="color:rgba(212,232,194,.4)">TPS</span><span class="ci-val" style="color:var(--mist)">~65,000</span></div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:rgba(212,232,194,.2);margin-top:14px;text-align:right">Data via CoinGecko API · Updated every 60 seconds · USD pricing via USD/USD FX rate</div>
+      </div>
+    </div>
+    <!-- ====================== END CRYPTO ====================== -->
+
+
+    <!-- ====================== ABOUT ====================== -->
+    <div class="app-page" id="page-about">
+      <div class="page-header"><div><h2>🌿 About Global Farm Trust</h2><p>United States's nature-first global farm trust bank</p></div></div>
+      <div id="dep-about" class="dep-banner mb6"></div>
+            <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto</div><div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+        </div>
+      </div>
+      <div class="grid-2 mb-6">
+        <div class="card-dark" style="display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--moss),var(--creek));display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px">🌍</div>
+            <div class="section-title-light mb-4">Our Story</div>
+            <p style="font-size:14px;color:rgba(212,232,194,.65);line-height:1.75;margin-bottom:14px">Global Farm Trust was founded in 2008 by a collective of United Statesn farmers, wildlife carers, and conservation land managers who were underserved by traditional banks. We built a credit union specifically for people whose work sustains our landscapes.</p>
+            <p style="font-size:14px;color:rgba(212,232,194,.65);line-height:1.75">Today we serve over 1,284 members across Colorado, Montana, and Texas — offering farm loans, wildlife grants, and purpose-built financial tools that reward environmental stewardship.</p>
+          </div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)">
+            <div style="font-size:11px;color:rgba(212,232,194,.3)">EIN 47-2938104 · FDIC Insured · Member FDIC</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card" style="border-left:4px solid var(--moss)"><div style="font-size:20px;margin-bottom:6px">🌱</div><div style="font-weight:700;color:var(--forest-dark);margin-bottom:4px">Our Mission</div><div style="font-size:13px;color:#6b7c6b;line-height:1.6">To provide ethical, accessible financial services to the people who protect and nurture United States's wildlife and farmland — while building long-term financial resilience in rural communities.</div></div>
+          <div class="card" style="border-left:4px solid var(--creek)"><div style="font-size:20px;margin-bottom:6px">🦎</div><div style="font-weight:700;color:var(--forest-dark);margin-bottom:4px">Wildlife Commitment</div><div style="font-size:13px;color:#6b7c6b;line-height:1.6">1% of all net revenue is directed to United Statesn wildlife habitat restoration. Our Wildlife Care Fund rewards members directly for planting native trees, building corridors, and supporting biodiversity.</div></div>
+          <div class="card" style="border-left:4px solid var(--gold)"><div style="font-size:20px;margin-bottom:6px">🏆</div><div style="font-weight:700;color:var(--forest-dark);margin-bottom:4px">Awards & Recognition</div><div style="font-size:13px;color:#6b7c6b;line-height:1.6">Forbes Best Farm Lender 2024 · ABA Excellence in Community Banking 2023 · USA Environment Award for Financial Innovation 2022.</div></div>
+        </div>
+      </div>
+      <div class="card mb-6">
+        <div class="section-title mb-4">Key Facts</div>
+        <div class="grid-4">
+          <div style="text-align:center;padding:16px"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--moss)">12,400+</div><div style="font-size:12px;color:#6b7c6b;margin-top:4px">Global Members</div></div>
+          <div style="text-align:center;padding:16px"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--moss)">$2.8B+</div><div style="font-size:12px;color:#6b7c6b;margin-top:4px">Farm Loans Funded (USD)</div></div>
+          <div style="text-align:center;padding:16px"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--moss)">$4.2M</div><div style="font-size:12px;color:#6b7c6b;margin-top:4px">Grants Disbursed (USD)</div></div>
+          <div style="text-align:center;padding:16px"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--moss)">18 yrs</div><div style="font-size:12px;color:#6b7c6b;margin-top:4px">Serving United States</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title mb-4">Board of Directors</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f8fdf2;border-radius:12px"><div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#5a7a3a,#4a9080);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:14px">PM</div><div><div style="font-weight:600;color:var(--forest-dark)">Patricia Morgan</div><div style="font-size:12px;color:#6b7c6b">Chair · Grazier & Conservation Land Manager, USA</div></div></div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f8fdf2;border-radius:12px"><div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4a9080,#5a7a3a);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:14px">DK</div><div><div style="font-weight:600;color:var(--forest-dark)">David Kowalski</div><div style="font-size:12px;color:#6b7c6b">Deputy Chair · Wildlife Carer & Vet, USA</div></div></div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f8fdf2;border-radius:12px"><div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#d4a830,#5a7a3a);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:14px">SR</div><div><div style="font-weight:600;color:var(--forest-dark)">Sandra Rios</div><div style="font-size:12px;color:#6b7c6b">Treasurer · CPA, Rural Finance Specialist, USA</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================== HELP & SUPPORT ====================== -->
+    <div class="app-page" id="page-help">
+      <div class="page-header"><div><h2>💬 Help & Support</h2><p>We're here for you 24/7 — chat, call, or browse our FAQ</p></div></div>
+      <div id="dep-help" class="dep-banner mb6"></div>
+            <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto</div><div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+        </div>
+      </div>
+      <div class="grid-2 mb-6">
+        <!-- LIVE CHAT / AI SUPPORT -->
+        <div class="card-dark" style="display:flex;flex-direction:column;height:580px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--moss),var(--creek));display:flex;align-items:center;justify-content:center;font-size:16px">🌍</div>
+              <div><div style="font-size:14px;font-weight:600;color:var(--mist)">Global Farm Trust Support</div><div style="font-size:11px;color:#6ef08a;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#6ef08a;display:inline-block"></span>Online now · AI + Live agents</div></div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button onclick="switchSupportMode('ai')" id="mode-ai" style="padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:var(--moss);color:white">🤖 AI</button>
+              <button onclick="switchSupportMode('live')" id="mode-live" style="padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(212,232,194,.6)">👤 Live</button>
+            </div>
+          </div>
+          <!-- Chat messages -->
+          <div id="chat-messages" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 0;margin-bottom:14px;scrollbar-width:thin">
+            <div style="align-self:flex-start;max-width:80%"><div style="background:rgba(255,255,255,.1);border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:13px;color:var(--mist);line-height:1.5">👋 G'day! I'm Wally, your Global Farm Trust AI assistant. I can help with account questions, loan info, crypto deposits, and more.<br><br>What can I help you with today?</div><div style="font-size:10px;color:rgba(212,232,194,.3);margin-top:4px;margin-left:4px">Wally · Just now</div></div>
+            <div id="live-agent-msg" style="align-self:flex-start;max-width:80%;display:none"><div style="background:rgba(90,122,58,.2);border:1px solid rgba(90,122,58,.3);border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:13px;color:var(--mist);line-height:1.5">🎉 You've been connected to <strong>Sarah</strong>, a live Global Farm Trust support specialist. Average wait time is under 2 minutes. How can I help you today?</div><div style="font-size:10px;color:rgba(212,232,194,.3);margin-top:4px;margin-left:4px">Sarah (Live Agent) · Just now</div></div>
+          </div>
+          <!-- Quick replies -->
+          <div id="quick-replies" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+            <button onclick="sendQuickReply('How do I deposit crypto?')" style="padding:5px 10px;border-radius:20px;font-size:11px;font-weight:500;background:rgba(168,200,120,.15);color:var(--leaf);border:1px solid rgba(168,200,120,.25);cursor:pointer">💳 Crypto deposit</button>
+            <button onclick="sendQuickReply('What are the farm loan rates?')" style="padding:5px 10px;border-radius:20px;font-size:11px;font-weight:500;background:rgba(168,200,120,.15);color:var(--leaf);border:1px solid rgba(168,200,120,.25);cursor:pointer">🌱 Loan rates</button>
+            <button onclick="sendQuickReply('How do I apply for a grant?')" style="padding:5px 10px;border-radius:20px;font-size:11px;font-weight:500;background:rgba(168,200,120,.15);color:var(--leaf);border:1px solid rgba(168,200,120,.25);cursor:pointer">🌳 Grants</button>
+            <button onclick="sendQuickReply('My account balance looks wrong')" style="padding:5px 10px;border-radius:20px;font-size:11px;font-weight:500;background:rgba(168,200,120,.15);color:var(--leaf);border:1px solid rgba(168,200,120,.25);cursor:pointer">⚠️ Balance issue</button>
+          </div>
+          <!-- Input -->
+          <div style="display:flex;gap:8px">
+            <input id="chat-input" type="text" placeholder="Type your message…" onkeydown="if(event.key==='Enter')sendChatMsg()" style="flex:1;padding:11px 14px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);border-radius:11px;color:var(--mist);font-family:'DM Sans',sans-serif;font-size:13px;outline:none">
+            <button onclick="sendChatMsg()" style="padding:11px 16px;background:var(--moss);color:white;border:none;border-radius:11px;font-size:16px;cursor:pointer;font-family:inherit">➤</button>
+          </div>
+          <div style="font-size:10px;color:rgba(212,232,194,.2);text-align:center;margin-top:8px">AI responses are for general guidance only. For urgent matters call +1 800 FARM-TRUST.</div>
+        </div>
+        <!-- RIGHT: Contact & FAQ -->
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="section-title mb-4">Contact Options</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fdf2;border-radius:12px">
+                <div style="width:38px;height:38px;border-radius:10px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:18px">📞</div>
+                <div><div style="font-weight:600;color:var(--forest-dark);font-size:13px">Phone Support</div><div style="font-size:12px;color:#6b7c6b">+1 800 327 8278 (FARM-TRUST)</div><div style="font-size:11px;color:#a0b090">Mon–Fri 8am–6pm EST · Sat 9am–1pm</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fdf2;border-radius:12px">
+                <div style="width:38px;height:38px;border-radius:10px;background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:18px">📧</div>
+                <div><div style="font-weight:600;color:var(--forest-dark);font-size:13px">Email Support</div><div style="font-size:12px;color:#6b7c6b">support@globalfarmtrust.com.au</div><div style="font-size:11px;color:#a0b090">Response within 4 business hours</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fdf2;border-radius:12px">
+                <div style="width:38px;height:38px;border-radius:10px;background:#fff8e1;display:flex;align-items:center;justify-content:center;font-size:18px">🏢</div>
+                <div><div style="font-weight:600;color:var(--forest-dark);font-size:13px">Branch — Denver</div><div style="font-size:12px;color:#6b7c6b">12 Kookaburra St, Denver USA 2650</div><div style="font-size:11px;color:#a0b090">Mon–Fri 9am–5pm · Walk-ins welcome</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-title mb-4">Frequently Asked Questions</div>
+            <div id="faq-list" style="display:flex;flex-direction:column;gap:6px">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================== PRIVACY POLICY ====================== -->
+    <div class="app-page" id="page-privacy">
+      <div class="page-header"><div><h2>🔒 Privacy Policy</h2><p>How Global Farm Trust collects, uses, and protects your personal information</p></div></div>
+      <div id="dep-privacy" class="dep-banner mb6"></div>
+            <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto</div><div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+        </div>
+      </div>
+      <div class="card mb-6">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:#f0f8ff;border-radius:12px;margin-bottom:22px">
+          <span style="font-size:22px">🔒</span>
+          <div><div style="font-weight:600;color:var(--forest-dark)">Your privacy matters</div><div style="font-size:12px;color:#6b7c6b">Last updated: 1 January 2026 · Effective date: 1 January 2026</div></div>
+        </div>
+        <div style="max-width:780px;font-size:14px;color:#3a4a3a;line-height:1.8">
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:0 0 10px">1. Information We Collect</div>
+          <p style="margin-bottom:16px">Global Farm Trust collects personal information necessary to provide our financial services, including: full name, date of birth, residential and mailing address, email address, phone number, tax file number (TFN), government-issued identity documents, bank account and financial details, and information about your farm or property where relevant to a loan or grant application.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">2. How We Use Your Information</div>
+          <p style="margin-bottom:16px">We use your personal information to: verify your identity under the Bank Secrecy Act (BSA); process loan, grant, and account applications; provide ongoing banking services; send account statements and notices; meet our regulatory obligations under the Federal Reserve Act and FDIC prudential standards; and detect and prevent fraud.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">3. Disclosure of Information</div>
+          <p style="margin-bottom:16px">We may share your information with: credit reporting bodies (Equifax, Experian, illion); government agencies where required by law (ATO, FinCEN, ASIC); our service providers operating under confidentiality agreements; and your authorised representatives. We do not sell your personal information to any third party for marketing purposes.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">4. Data Security</div>
+          <p style="margin-bottom:16px">All data is encrypted in transit using TLS 1.3 and at rest using AES-256 encryption. Our systems are audited annually by an independent cybersecurity firm. We maintain ISO 27001-aligned information security management practices and follow FDIC Prudential Standard CPS 234 — Information Security.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">5. Your Rights</div>
+          <p style="margin-bottom:16px">Under the US Privacy Act and the United Statesn Privacy Principles (APPs), you have the right to: access the personal information we hold about you; correct inaccurate information; complain about a breach of your privacy; and opt out of direct marketing. Contact our Privacy Officer at privacy@globalfarmtrust.com.au.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">6. Cookies & Digital Tracking</div>
+          <p style="margin-bottom:16px">Our online banking platform uses session cookies for authentication and security. We do not use third-party advertising cookies. Analytics data is anonymised and used solely to improve our services. You can disable cookies in your browser; however this may impact some banking functions.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">7. Contact</div>
+          <p>Privacy Officer, Global Farm Trust · 12 Kookaburra St, Denver USA 2650 · privacy@globalfarmtrust.com.au · +1 800 327-8278</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================== TERMS OF SERUSAE ====================== -->
+    <div class="app-page" id="page-terms">
+      <div class="page-header"><div><h2>📄 Terms of Service</h2><p>Member Agreement — Global Farm Trust Bank</p></div></div>
+      <div id="dep-terms" class="dep-banner mb6"></div>
+            <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto</div><div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+        </div>
+      </div>
+      <div class="card mb-6">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:#fff8e1;border-radius:12px;margin-bottom:22px">
+          <span style="font-size:22px">📄</span>
+          <div><div style="font-weight:600;color:var(--forest-dark)">Global Farm Trust Member Agreement</div><div style="font-size:12px;color:#6b7c6b">Version 4.1 · Effective 1 January 2026 · EIN 47-2938104</div></div>
+        </div>
+        <div style="max-width:780px;font-size:14px;color:#3a4a3a;line-height:1.8">
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:0 0 10px">1. Membership Eligibility</div>
+          <p style="margin-bottom:16px">Membership of Global Farm Trust is open to individuals and entities engaged in farming, grazier activities, wildlife care, native plant cultivation, conservation land management, or related rural industries within United States. General membership is also available. Members must be at least 18 years of age and an United Statesn resident or citizen. Global Farm Trust reserves the right to decline or terminate membership in accordance with its Constitution.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">2. Account Terms</div>
+          <p style="margin-bottom:16px">All accounts are governed by the Product Disclosure Statement (PDS) applicable to each product. Interest rates are variable unless stated as fixed in writing. Global Farm Trust may vary interest rates, fees, or account terms with 20 days' notice via electronic or postal communication. Members are responsible for maintaining secure access credentials and must notify us immediately of any suspected unauthorised access.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">3. Loan & Credit Conditions</div>
+          <p style="margin-bottom:16px">All loan facilities are subject to credit assessment and approval. Global Farm Trust lends responsibly in accordance with the Truth in Lending Act (TILA) and Dodd-Frank Act (Cth). Loan terms, repayment schedules, and security requirements are set out in individual loan agreements. Early repayment may be subject to break costs for fixed-rate products.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">4. Crypto & Digital Asset Deposits</div>
+          <p style="margin-bottom:16px">Cryptocurrency deposits are accepted as a funding mechanism only. Global Farm Trust converts received digital assets to USD at the prevailing market rate at time of confirmed receipt. Global Farm Trust is not a digital currency exchange and does not hold member funds in cryptocurrency. Members acknowledge the inherent volatility and irreversibility of blockchain transactions. Global Farm Trust accepts no liability for misdirected or unsupported network deposits.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">5. Wildlife Care Fund</div>
+          <p style="margin-bottom:16px">Wildlife Credits are awarded at Global Farm Trust's discretion upon verification of eligible activities. Points have no monetary value and cannot be redeemed for cash. Global Farm Trust reserves the right to modify, suspend, or terminate the Wildlife Care Fund program with 30 days' notice. Credits expire if an account is inactive for 24 consecutive months.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">6. Limitation of Liability</div>
+          <p style="margin-bottom:16px">To the maximum extent permitted by law, Global Farm Trust's liability for any loss arising from our services is limited to the direct loss caused by our proven negligence. We are not liable for indirect, consequential, or special damages. Nothing in these terms limits any rights you have under the United Statesn Consumer Law.</p>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--forest-dark);margin:16px 0 10px">7. Governing Law</div>
+          <p>These terms are governed by the laws of Colorado, United States. Disputes will be resolved in the courts of USA unless otherwise agreed. Global Farm Trust participates in the United Statesn Financial Complaints Authority (CFPB) scheme — cfpb.gov · +1 855 411-2372.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================== FDIC DISCLOSURE ====================== -->
+    <div class="app-page" id="page-apra">
+      <div class="page-header"><div><h2>🏛️ FDIC Disclosure</h2><p>Prudential & regulatory disclosures — Global Farm Trust Bank</p></div></div>
+      <div id="dep-apra" class="dep-banner mb6"></div>
+            <div style="background:linear-gradient(135deg,#0d1a0d,#0a141a,#0d0a1a);border-radius:16px;padding:16px 20px;margin-bottom:22px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund via Crypto</div><div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="copyAndConfirm('bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+          <button onclick="copyAndConfirm('THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+          <button onclick="copyAndConfirm('0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+          <button onclick="copyAndConfirm('F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+        </div>
+      </div>
+      <div class="grid-2 mb-6">
+        <div class="card" style="border-left:4px solid var(--moss)">
+          <div style="font-size:20px;margin-bottom:8px">🏛️</div>
+          <div class="section-title mb-3">FDIC Authorisation</div>
+          <div style="font-size:13px;color:#3a4a3a;line-height:1.7">Global Farm Trust is an Authorised Deposit-taking Institution (FDIC Member Bank) regulated by the United Statesn Prudential Regulation Authority (FDIC) under the <em>Federal Reserve Act</em>. Our FDIC-issued FDIC Member Bank licence number is FDIC Member Bank-0002841.</div>
+          <div style="margin-top:14px;padding:12px;background:#f0f8e8;border-radius:10px">
+            <div style="font-size:11px;font-weight:600;color:#5a7a3a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Regulatory Status</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#3a4a3a">
+              <div>✅ FDIC Authorised — FDIC Charter No. 58824</div>
+              <div>✅ ASIC Registered — FDIC Insured · Member FDIC</div>
+              <div>✅ FinCEN Registered — AML/CTF Program in place</div>
+              <div>✅ CFPB Member — Dispute Resolution Scheme</div>
+              <div>✅ CDR Accredited — Open Banking participant</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="border-left:4px solid var(--creek)">
+          <div style="font-size:20px;margin-bottom:8px">💰</div>
+          <div class="section-title mb-3">Financial Claims Scheme</div>
+          <div style="font-size:13px;color:#3a4a3a;line-height:1.7">Deposits held with Global Farm Trust are protected under the United Statesn Government's <strong>FDIC Deposit Insurance</strong>. The FCS guarantees eligible deposits up to <strong>$250,000 per account holder</strong> in the event Global Farm Trust were to fail.</div>
+          <div style="margin-top:14px;padding:12px;background:#e3f2fd;border-radius:10px">
+            <div style="font-size:11px;font-weight:600;color:#1565c0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">FCS Coverage</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#1a2a4a">
+              <div>🛡️ Up to $250,000 per account holder</div>
+              <div>🛡️ Covers savings, transaction, and term deposit accounts</div>
+              <div>🛡️ United Statesn Government backed guarantee</div>
+              <div>🛡️ Administered by FDIC</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#6b7c6b;margin-top:10px">More information: fdic.gov/financial-claims-scheme</div>
+        </div>
+      </div>
+      <div class="card mb-6">
+        <div class="section-title mb-4">Prudential Capital & Risk Disclosures</div>
+        <div class="grid-3">
+          <div style="padding:16px;background:#f8fdf2;border-radius:12px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--moss)">14.8%</div><div style="font-size:11px;color:#6b7c6b;margin-top:4px">Common Equity Tier 1 (CET1) Ratio</div><div style="font-size:10px;color:#a0b090;margin-top:2px">FDIC minimum: 4.5%</div></div>
+          <div style="padding:16px;background:#f8fdf2;border-radius:12px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--moss)">18.2%</div><div style="font-size:11px;color:#6b7c6b;margin-top:4px">Total Capital Ratio</div><div style="font-size:10px;color:#a0b090;margin-top:2px">FDIC minimum: 8%</div></div>
+          <div style="padding:16px;background:#f8fdf2;border-radius:12px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--moss)">23.4%</div><div style="font-size:11px;color:#6b7c6b;margin-top:4px">Liquidity Coverage Ratio (LCR)</div><div style="font-size:10px;color:#a0b090;margin-top:2px">FDIC minimum: 100% for major FDIC Member Banks</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title mb-4">Key Prudential Standards Compliance</div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="border-bottom:1.5px solid #e8f0e0"><th style="text-align:left;padding:9px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7c6b">Standard</th><th style="text-align:left;padding:9px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7c6b">Description</th><th style="text-align:left;padding:9px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7c6b">Status</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #f0f5e8"><td style="padding:12px 14px;font-size:13px;font-weight:500">APS 110</td><td style="padding:12px 14px;font-size:13px;color:#6b7c6b">Capital Adequacy</td><td style="padding:12px 14px"><span style="background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">Compliant</span></td></tr>
+            <tr style="border-bottom:1px solid #f0f5e8"><td style="padding:12px 14px;font-size:13px;font-weight:500">APS 210</td><td style="padding:12px 14px;font-size:13px;color:#6b7c6b">Liquidity</td><td style="padding:12px 14px"><span style="background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">Compliant</span></td></tr>
+            <tr style="border-bottom:1px solid #f0f5e8"><td style="padding:12px 14px;font-size:13px;font-weight:500">CPS 220</td><td style="padding:12px 14px;font-size:13px;color:#6b7c6b">Risk Management</td><td style="padding:12px 14px"><span style="background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">Compliant</span></td></tr>
+            <tr style="border-bottom:1px solid #f0f5e8"><td style="padding:12px 14px;font-size:13px;font-weight:500">CPS 234</td><td style="padding:12px 14px;font-size:13px;color:#6b7c6b">Information Security</td><td style="padding:12px 14px"><span style="background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">Compliant</span></td></tr>
+            <tr><td style="padding:12px 14px;font-size:13px;font-weight:500">APS 310</td><td style="padding:12px 14px;font-size:13px;color:#6b7c6b">Audit & Related Matters</td><td style="padding:12px 14px"><span style="background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">Compliant</span></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:16px;font-size:11px;color:#8a9c8a;line-height:1.6">Annual reports and full FDIC prudential disclosures are available at <strong>globalfarmtrust.com.au/disclosures</strong>. For complaints: United Statesn Financial Complaints Authority (CFPB) · <strong>cfpb.gov</strong> · +1 855 411-2372. For regulatory enquiries: FDIC · <strong>fdic.gov</strong>.</div>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<div class="modal-backdrop" id="loan-modal">
+  <div class="modal">
+    <h3>🌱 Apply for Farm Loan</h3>
+    <p>Complete the form below and a lending specialist will contact you within 2 business days.</p>
+    <div class="form-group"><label class="form-label">Loan Product</label><select class="form-input" id="loan-product"><option>Starter Farm Loan (up to $150k)</option><option>Equipment Finance (up to $80k)</option><option>Livestock Loan (up to $50k)</option><option>Plant Nursery (up to $150k)</option></select></div>
+    <div class="form-group"><label class="form-label">Requested Amount</label><div class="input-group"><span class="input-prefix">$</span><input class="form-input" type="number" id="loan-amount" placeholder="0.00"></div></div>
+    <div class="form-group"><label class="form-label">Purpose</label><input class="form-input" type="text" id="loan-purpose" placeholder="Describe how funds will be used"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeLoanModal()">Cancel</button><button class="btn btn-primary" onclick="submitLoan()">Submit Application</button></div>
+  </div>
+</div>
+
+<script>
+function getState(){try{return JSON.parse(localStorage.getItem('wfcu_state')||'null')}catch{return null}}
+function saveState(s){localStorage.setItem('wfcu_state',JSON.stringify(s));}
+function fmt(n){const v=Number(n)||0;return '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+// Build a graceful demo state if no session exists (prevents blank page)
+function blankDemoState(){
+  return {
+    _session:{loginTime:Date.now()},
+    user:{id:'GFT-0001',name:'New Member',avatar:'NM',email:'member@globalfarmtrust.com',type:'Farmer / Rancher'},
+    accounts:{
+      savings:{label:'USD Savings Account',routing:'124003116',acc:'1042-8830',balance:0,rate:4.75},
+      farm:{label:'Farm Business USD',routing:'124003116',acc:'2083-4410',balance:0,rate:3.10},
+      term:{label:'USD USD Term Deposit',routing:'124003116',acc:'3100-9921',balance:0,rate:5.40,locked:true},
+    },
+    loans:{
+      l004:{label:'Starter Farm Loan',ref:'GFT-L004',balance:0,rate:6.25,term:25,status:'None'},
+      l007:{label:'Equipment Finance',ref:'GFT-L007',balance:0,rate:7.10,term:7,status:'None'},
+    },
+    grants:{received:0,pending:0},
+    wildcredits:0,
+    transactions:[],
+    alerts:[{id:1,type:'info',title:'Welcome to Global Farm Trust!',msg:'Welcome to Global Farm Trust Bank. Your account is ready. Deposit funds or apply for a farm loan to get started.',date:'Today',read:false}],
+    adminAudit:[],
+  };
+}
+
+let S = getState();
+// Redirect to login if no session
+if(!S || !S._session){ window.location.href='globalfarmtrust_login.html'; }
+
+function refresh(){
+  S = getState();
+  if(!S || !S._session){ window.location.href='globalfarmtrust_login.html'; return; }
+
+  // Sidebar
+  document.getElementById('sb-avatar').textContent = S.user.avatar;
+  document.getElementById('sb-name').textContent = S.user.name;
+  document.getElementById('sb-id').textContent = 'Member ' + S.user.id;
+  document.getElementById('dash-greeting').textContent = 'Welcome, ' + S.user.name.split(' ')[0] + ' 🌙';
+  document.getElementById('vc-name').textContent = S.user.name.toUpperCase();
+  document.getElementById('vc-name-2').textContent = S.user.name.toUpperCase();
+  document.getElementById('vc-name-3').textContent = S.user.name.toUpperCase();
+  document.getElementById('vc-name-4').textContent = S.user.name.toUpperCase();
+
+  // Balances
+  const totalBal = S.accounts.savings.balance + S.accounts.farm.balance + S.accounts.term.balance;
+  document.getElementById('dash-total-balance').textContent = fmt(totalBal);
+  document.getElementById('card-balance-display').textContent = fmt(S.accounts.savings.balance).replace('.00','');
+  document.getElementById('acc-savings').textContent = fmt(S.accounts.savings.balance);
+  document.getElementById('acc-farm').textContent = fmt(S.accounts.farm.balance);
+  document.getElementById('acc-term').textContent = fmt(S.accounts.term.balance);
+  document.getElementById('rate-savings').textContent = S.accounts.savings.rate;
+  document.getElementById('rate-farm').textContent = S.accounts.farm.rate;
+  document.getElementById('rate-term').textContent = S.accounts.term.rate;
+  document.getElementById('vc-bal-1').textContent = fmt(S.accounts.savings.balance).replace('.00','');
+  document.getElementById('vc-bal-2').textContent = fmt(S.accounts.farm.balance).replace('.00','');
+  document.getElementById('vc-bal-3').textContent = fmt(S.accounts.term.balance).replace('.00','');
+
+  // Loans
+  const totalLoan = S.loans.l004.balance + S.loans.l007.balance;
+  document.getElementById('dash-loan-balance').textContent = fmt(totalLoan);
+  document.getElementById('dash-grants').textContent = fmt(S.grants.received);
+  document.getElementById('dash-credits').textContent = S.wildcredits.toLocaleString() + ' pts';
+  document.getElementById('wc-points').textContent = S.wildcredits.toLocaleString();
+
+  renderTransactions();
+  renderAlerts();
+  renderLoans();
+  renderGrants();
+  renderSpendingBars();
+}
+
+// ---------- TRANSACTIONS ----------
+function renderTransactions(){
+  const tbody = document.getElementById('tx-list');
+  const empty = document.getElementById('tx-empty');
+  const dashList = document.getElementById('dash-tx-list');
+
+  if(S.transactions.length === 0){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    dashList.innerHTML = '<div class="empty-state"><div class="ic">🌊</div><h4>No transactions yet</h4><p>Your transaction history will appear here</p></div>';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const catIcons = {Farm:'🌾',Livestock:'🐑',Equipment:'⚙️',Income:'💰',Grant:'🏛️',Loan:'💧',Insurance:'🛡️',Utilities:'⚡',Other:'📦'};
+  const catColors = {Farm:'#e8f5e9',Livestock:'#fff8e1',Equipment:'#e3f2fd',Income:'#e8f5e9',Grant:'#e3f2fd',Loan:'#f8f0ff',Insurance:'#f5f5f5',Utilities:'#fff3e0',Other:'#f5f5f5'};
+  const catBadge = {Farm:'badge-green',Livestock:'badge-amber',Equipment:'badge-blue',Income:'badge-green',Grant:'badge-blue',Loan:'badge-gray',Insurance:'badge-gray',Utilities:'badge-amber',Other:'badge-gray'};
+
+  function row(tx){
+    const icon = catIcons[tx.category] || '📦';
+    const bg = catColors[tx.category] || '#f5f5f5';
+    const badgeCls = catBadge[tx.category] || 'badge-gray';
+    const amtCls = tx.amount > 0 ? 'tx-amount-pos' : 'tx-amount-neg';
+    const sign = tx.amount > 0 ? '+' : '-';
+    return `<tr><td><div class="flex items-center gap-3"><div class="tx-icon" style="background:${bg}">${icon}</div><div><strong>${tx.desc}</strong><br><span style="font-size:11px;color:#6b7c6b">${tx.category}</span></div></div></td><td style="font-size:12px">${tx.accountLabel||''}</td><td><span class="badge ${badgeCls}">${tx.category}</span></td><td style="font-size:12px">${tx.date}</td><td><span class="badge badge-blue">Cleared</span></td><td style="text-align:right" class="${amtCls}">${sign}${fmt(Math.abs(tx.amount))}</td></tr>`;
+  }
+
+  tbody.innerHTML = S.transactions.map(row).join('');
+  dashList.innerHTML = `<table class="tx-table"><thead><tr><th>Description</th><th>Category</th><th>Date</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead><tbody>${S.transactions.slice(0,4).map(tx=>{
+    const icon = catIcons[tx.category]||'📦', bg=catColors[tx.category]||'#f5f5f5', badgeCls=catBadge[tx.category]||'badge-gray';
+    const amtCls = tx.amount>0?'tx-amount-pos':'tx-amount-neg', sign = tx.amount>0?'+':'-';
+    return `<tr><td><div class="flex items-center gap-3"><div class="tx-icon" style="background:${bg}">${icon}</div><div><strong>${tx.desc}</strong><br><span style="font-size:11px;color:#6b7c6b">${tx.category}</span></div></div></td><td><span class="badge ${badgeCls}">${tx.category}</span></td><td>${tx.date}</td><td><span class="badge badge-blue">Cleared</span></td><td style="text-align:right" class="${amtCls}">${sign}${fmt(Math.abs(tx.amount))}</td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+function renderSpendingBars(){
+  const wrap = document.getElementById('spending-bars');
+  const spendByCat = {};
+  S.transactions.filter(t=>t.amount<0).forEach(t=>{ spendByCat[t.category] = (spendByCat[t.category]||0) + Math.abs(t.amount); });
+  const entries = Object.entries(spendByCat).sort((a,b)=>b[1]-a[1]);
+  if(entries.length===0){
+    wrap.innerHTML = '<div class="empty-state"><div class="ic">📊</div><h4>No spending yet</h4><p>Make a transaction to see your spending breakdown</p></div>';
+    return;
+  }
+  const max = entries[0][1];
+  wrap.innerHTML = entries.slice(0,6).map(([cat,amt])=>`<div class="bar-row"><div class="bar-label">${cat}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(amt/max*100)}%"></div></div><div class="bar-val">${fmt(amt)}</div></div>`).join('');
+}
+
+// ---------- NEW TRANSACTION ----------
+let selectedTxType = 'credit';
+function selectTxType(type){
+  selectedTxType = type;
+  document.querySelectorAll('.tx-type-btn').forEach(b=>b.classList.toggle('selected', b.dataset.type===type));
+  updateNtxPreview();
+}
+['ntx-amount','ntx-desc','ntx-category','ntx-account'].forEach(id=>{
+  document.addEventListener('DOMContentLoaded',()=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', updateNtxPreview);
+  });
+});
+function updateNtxPreview(){
+  const amount = parseFloat(document.getElementById('ntx-amount').value) || 0;
+  const desc = document.getElementById('ntx-desc').value || '(no description)';
+  const cat = document.getElementById('ntx-category').value;
+  const acc = document.getElementById('ntx-account').value;
+  const accLabel = acc === 'savings' ? 'USD Savings Account' : 'Farm Business USD';
+  const sign = selectedTxType === 'credit' ? '+' : '-';
+  const color = selectedTxType === 'credit' ? '#a8e8a0' : '#f0c0c0';
+  document.getElementById('ntx-preview').innerHTML = `
+    <div style="font-size:12px;color:rgba(212,232,194,0.5);margin-bottom:6px">${accLabel} · ${cat}</div>
+    <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:${color}">${sign}${fmt(amount)}</div>
+    <div style="font-size:13px;color:var(--mist);margin-top:6px">${desc}</div>
+  `;
+}
+function submitNewTx(){
+  const amount = parseFloat(document.getElementById('ntx-amount').value);
+  const desc = document.getElementById('ntx-desc').value.trim();
+  const category = document.getElementById('ntx-category').value;
+  const account = document.getElementById('ntx-account').value;
+  if(isNaN(amount) || amount <= 0){ showToast('Enter a valid amount','⚠️'); return; }
+  if(!desc){ showToast('Enter a description','⚠️'); return; }
+
+  const signedAmount = selectedTxType === 'credit' ? amount : -amount;
+  const accLabel = account === 'savings' ? 'USD Savings Account' : 'Farm Business USD';
+
+  S.transactions.unshift({
+    id: Date.now(), desc, category, amount: signedAmount,
+    account, accountLabel: accLabel,
+    date: new Date().toLocaleDateString('en-US', {day:'2-digit',month:'short',year:'numeric'})
+  });
+  S.accounts[account].balance += signedAmount;
+  if(S.accounts[account].balance < 0) S.accounts[account].balance = 0;
+
+  // Add an alert for the transaction
+  S.alerts.unshift({
+    id: Date.now()+1,
+    type: signedAmount > 0 ? 'success' : 'info',
+    title: signedAmount > 0 ? 'Funds received' : 'Payment made',
+    msg: `${desc} — ${signedAmount>0?'+':''}${fmt(Math.abs(signedAmount))} (${accLabel})`,
+    date: 'Just now', read: false
+  });
+
+  saveState(S);
+  document.getElementById('ntx-amount').value = '';
+  document.getElementById('ntx-desc').value = '';
+  showToast(`Transaction recorded: ${fmt(Math.abs(signedAmount))} ${selectedTxType === 'credit' ? 'credited' : 'debited'}`, '✅');
+  refresh();
+  updateNtxPreview();
+}
+
+// ---------- ALERTS ----------
+function renderAlerts(){
+  const list = document.getElementById('alerts-list');
+  const countEl = document.getElementById('alert-count');
+  const unread = S.alerts.filter(a=>!a.read).length;
+
+  if(unread > 0){ countEl.style.display='inline-block'; countEl.textContent = unread; }
+  else { countEl.style.display = 'none'; }
+
+  if(S.alerts.length === 0){
+    list.innerHTML = '<div class="empty-state"><div class="ic">🔔</div><h4>No alerts</h4><p>You are all caught up</p></div>';
+    return;
+  }
+  const typeIcons = {success:'✅', warning:'⚠️', danger:'🚨', info:'ℹ️'};
+  list.innerHTML = S.alerts.map(a => `
+    <div class="alert-card ${!a.read?'unread':''} type-${a.type}" onclick="markAlertRead(${a.id})">
+      <div class="alert-icon">${typeIcons[a.type]||'🔔'}</div>
+      <div class="alert-content">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-msg">${a.msg}</div>
+        <div class="alert-date">${a.date}</div>
+      </div>
+      ${!a.read ? '<div class="unread-dot"></div>' : ''}
+    </div>
+  `).join('');
+}
+function markAlertRead(id){
+  const a = S.alerts.find(x=>x.id===id);
+  if(a){ a.read = true; saveState(S); refresh(); }
+}
+function markAllRead(){
+  S.alerts.forEach(a=>a.read=true);
+  saveState(S); refresh();
+  showToast('All alerts marked as read','✅');
+}
+
+// ---------- LOANS ----------
+function renderLoans(){
+  const grid = document.getElementById('loans-grid');
+  const loanCards = [];
+  if(S.loans.l004.balance > 0 || S.loans.l004.status !== 'None'){
+    loanCards.push(`<div class="loan-card"><div class="flex justify-between"><div><div class="loan-title">${S.loans.l004.label}</div><div class="loan-subtitle">${S.loans.l004.ref}</div></div><span class="badge badge-green">Active</span></div><div class="loan-amount">${fmt(S.loans.l004.balance)} remaining</div><div class="loan-rate">${S.loans.l004.rate}% p.a. fixed · ${S.loans.l004.term}-year term</div></div>`);
+  }
+  if(S.loans.l007.balance > 0 || S.loans.l007.status !== 'None'){
+    loanCards.push(`<div class="loan-card"><div class="flex justify-between"><div><div class="loan-title">${S.loans.l007.label}</div><div class="loan-subtitle">${S.loans.l007.ref}</div></div><span class="badge badge-amber">${S.loans.l007.status}</span></div><div class="loan-amount">${fmt(S.loans.l007.balance)}</div><div class="loan-rate">${S.loans.l007.rate}% p.a. variable · ${S.loans.l007.term}-year term</div></div>`);
+  }
+  if(loanCards.length === 0){
+    grid.innerHTML = '<div class="card" style="grid-column:1/-1"><div class="empty-state"><div class="ic">🌱</div><h4>No active loans</h4><p>Apply for a farm loan to see it tracked here</p></div></div>';
+  } else {
+    grid.innerHTML = loanCards.join('');
+  }
+}
+
+// ---------- GRANTS ----------
+function renderGrants(){
+  const wrap = document.getElementById('grants-status');
+  if(S.grants.received === 0 && S.grants.pending === 0){
+    wrap.innerHTML = '<div class="card" style="grid-column:1/-1"><div class="empty-state"><div class="ic">🌳</div><h4>No grants yet</h4><p>Apply below to start receiving wildlife & farming grants</p></div></div>';
+    return;
+  }
+  let html = '';
+  if(S.grants.received > 0) html += `<div class="loan-card grant"><div class="flex justify-between"><div><div class="loan-title">Grants Received</div><div class="loan-subtitle">Total disbursed to your accounts</div></div><span class="badge badge-green">Received</span></div><div class="loan-amount">${fmt(S.grants.received)}</div></div>`;
+  if(S.grants.pending > 0) html += `<div class="loan-card grant"><div class="flex justify-between"><div><div class="loan-title">Pending Applications</div><div class="loan-subtitle">Awaiting approval</div></div><span class="badge badge-amber">Under Review</span></div><div class="loan-amount">${fmt(S.grants.pending)}</div></div>`;
+  wrap.innerHTML = html;
+}
+function applyGrant(name){
+  S.grants.pending += 5000;
+  S.alerts.unshift({id:Date.now(),type:'info',title:'Grant application submitted',msg:`Your application for "${name}" is under review.`,date:'Just now',read:false});
+  saveState(S);
+  showToast(`Application submitted for ${name}`,'🌳');
+  refresh();
+}
+
+// ---------- WILDLIFE POINTS ----------
+function earnPoints(pts,activity){
+  S.wildcredits += pts;
+  S.alerts.unshift({id:Date.now(),type:'success',title:'Wildlife credits earned',msg:`+${pts} pts for: ${activity}`,date:'Just now',read:false});
+  saveState(S);
+  showToast(`+${pts} Wildlife Credits earned!`,'🦎');
+  refresh();
+}
+
+// ---------- TRANSFER ----------
+function submitTransfer(){
+  const from = document.getElementById('tr-from').value;
+  const amount = parseFloat(document.getElementById('tr-amount').value);
+  const desc = document.getElementById('tr-desc').value.trim() || 'Transfer';
+  if(isNaN(amount) || amount <= 0){ showToast('Enter a valid amount','⚠️'); return; }
+  if(S.accounts[from].balance < amount){ showToast('Insufficient funds in selected account','⚠️'); return; }
+
+  S.accounts[from].balance -= amount;
+  S.transactions.unshift({id:Date.now(),desc,category:'Other',amount:-amount,account:from,accountLabel:S.accounts[from].label,date:new Date().toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'})});
+  S.alerts.unshift({id:Date.now()+1,type:'info',title:'Transfer sent',msg:`${fmt(amount)} sent — ${desc}`,date:'Just now',read:false});
+  saveState(S);
+  document.getElementById('tr-amount').value=''; document.getElementById('tr-desc').value='';
+  showToast(`Transfer of ${fmt(amount)} submitted`,'🦋');
+  refresh();
+}
+
+// ---------- LOAN APPLICATION ----------
+function openLoanModal(){ document.getElementById('loan-modal').classList.add('open'); }
+function closeLoanModal(){ document.getElementById('loan-modal').classList.remove('open'); }
+function submitLoan(){
+  const amount = parseFloat(document.getElementById('loan-amount').value) || 0;
+  const product = document.getElementById('loan-product').value;
+  S.loans.l007.status = 'Pending';
+  if(amount>0) S.loans.l007.balance = amount;
+  S.alerts.unshift({id:Date.now(),type:'info',title:'Loan application submitted',msg:`${product} — ${fmt(amount)} requested. We'll contact you within 2 business days.`,date:'Just now',read:false});
+  saveState(S);
+  closeLoanModal();
+  showToast('Loan application submitted!','🌱');
+  refresh();
+}
+
+// ---------- NAVIGATION ----------
+function showPage(id, btn){
+  const target = document.getElementById('page-'+id);
+  if(!target){ console.warn('Page not found: page-'+id); return; }
+  document.querySelectorAll('.app-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  target.classList.add('active');
+  if(btn && btn.classList){ btn.classList.add('active'); }
+  else {
+    document.querySelectorAll('.nav-item').forEach(b=>{
+      if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+id+"'")) b.classList.add('active');
+    });
+  }
+  if(id==='alerts') renderAlerts();
+  if(id==='crypto'){ try{ fetchPrices(); updateCryptoUI(); }catch(e){} }
+  if(id==='help'){ try{ renderFAQ(); }catch(e){} }
+  document.querySelector('.main').scrollTop = 0;
+}
+
+// ---------- LOGOUT ----------
+function doLogout(){
+  const s = getState();
+  if(s){ delete s._session; saveState(s); }
+  window.location.href = 'globalfarmtrust_login.html';
+}
+
+// ---------- TOAST ----------
+function showToast(msg,icon){
+  document.getElementById('toast-icon').textContent = icon||'✅';
+  document.getElementById('toast-msg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ── DEPOSIT BANNER INJECTOR ──
+function injectBanners(){
+  const WALLETS = {
+    btc: 'bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50',
+    usdt: 'THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo',
+    eth: '0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3',
+    sol: 'F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci',
+  };
+  const bannerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--mist);margin-bottom:2px">💳 Fund Your Account — Crypto Deposit</div>
+        <div style="font-size:11px;color:rgba(212,232,194,.4)">Click any coin to copy your deposit address · Converted to USD automatically</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="copyAndConfirm('${WALLETS.btc}','BTC')" style="padding:6px 12px;border-radius:8px;background:rgba(247,147,26,.18);color:#f7931a;border:1px solid rgba(247,147,26,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₿ BTC</button>
+        <button onclick="copyAndConfirm('${WALLETS.usdt}','USDT TRC-20')" style="padding:6px 12px;border-radius:8px;background:rgba(38,161,123,.18);color:#26a17b;border:1px solid rgba(38,161,123,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">₮ USDT</button>
+        <button onclick="copyAndConfirm('${WALLETS.eth}','ETH')" style="padding:6px 12px;border-radius:8px;background:rgba(98,126,234,.18);color:#8aa4f4;border:1px solid rgba(98,126,234,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Ξ ETH</button>
+        <button onclick="copyAndConfirm('${WALLETS.sol}','SOL')" style="padding:6px 12px;border-radius:8px;background:rgba(153,69,255,.18);color:#c084fc;border:1px solid rgba(153,69,255,.3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">◎ SOL</button>
+      </div>
+    </div>`;
+  ['dep-dashboard','dep-accounts','dep-cards','dep-transactions','dep-newtx',
+   'dep-alerts','dep-transfer','dep-loans','dep-grants','dep-wildlife',
+   'dep-crypto','dep-about','dep-help','dep-privacy','dep-terms','dep-apra'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = bannerHTML;
+  });
+}
+
+// ── STARTUP ──
+document.addEventListener('DOMContentLoaded', () => {
+  injectBanners();
+  refresh();
+  try { fetchPrices(); } catch(e) {}
+});
+
+// ── ADMIN LIVE SYNC ──
+setInterval(() => {
+  const fresh = getState();
+  if(fresh) { S = fresh; if(!S._session){ S._session={loginTime:Date.now()}; } refresh(); }
+}, 2000);
+
+// ============================================================
+//  DEPOSIT WALLET PANEL — Tab switching + Copy
+// ============================================================
+const DEPOSIT_WALLETS = {
+  btc:  { addr: 'bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50',     label: 'Bitcoin',        symbol: 'BTC',  network: 'Bitcoin Mainnet' },
+  usdt: { addr: 'THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo',             label: 'USDT (TRC-20)',  symbol: 'USDT', network: 'TRON TRC-20' },
+  eth:  { addr: '0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3',      label: 'Ethereum',       symbol: 'ETH',  network: 'Ethereum Mainnet' },
+  sol:  { addr: 'F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci',   label: 'Solana',         symbol: 'SOL',  network: 'Solana Mainnet' },
+};
+
+let activeWalletTab = 'btc';
+
+function switchWalletTab(coin) {
+  // Deactivate all tabs
+  ['btc','usdt','eth','sol'].forEach(c => {
+    const tab = document.getElementById('tab-'+c);
+    const pane = document.getElementById('pane-'+c);
+    if(tab) tab.className = 'wallet-tab';
+    if(pane) pane.classList.remove('active');
+  });
+  // Activate selected
+  const t = document.getElementById('tab-'+coin);
+  const p = document.getElementById('pane-'+coin);
+  if(t) t.className = `wallet-tab active-${coin}`;
+  if(p) p.classList.add('active');
+  activeWalletTab = coin;
+}
+
+function copyAndConfirm(addr, label) {
+  navigator.clipboard.writeText(addr)
+    .then(() => showToast(`${label} address copied! Paste in your wallet app.`, '📋'))
+    .catch(() => {
+      // Fallback for browsers that block clipboard
+      const el = document.createElement('textarea');
+      el.value = addr;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      showToast(`${label} address copied!`, '📋');
+    });
+}
+
+function shareAddress(coin, addr) {
+  const w = DEPOSIT_WALLETS[coin.toLowerCase()] || { label: coin, network: '' };
+  const text = `Global Farm Trust — ${w.label} Deposit Address\n${addr}\nNetwork: ${w.network}\n\nSend ${coin} here to fund your Global Farm Trust account.`;
+  if(navigator.share) {
+    navigator.share({ title: `Global Farm Trust ${coin} Deposit Address`, text });
+  } else {
+    copyAndConfirm(addr, coin);
+  }
+}
+
+// ============================================================
+//  CRYPTO WALLET ENGINE
+// ============================================================
+const WALLETS = {
+  btc: { addr: 'bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50', symbol: 'BTC', decimals: 8 },
+  eth: { addr: '0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3', symbol: 'ETH', decimals: 6 },
+  sol: { addr: 'F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci', symbol: 'SOL', decimals: 6 },
+};
+
+// Balances stored in localStorage crypto key
+const CRYPTO_KEY = 'wfcu_crypto';
+function getCrypto(){ try{ return JSON.parse(localStorage.getItem(CRYPTO_KEY)||'null'); }catch{ return null; } }
+function saveCrypto(c){ localStorage.setItem(CRYPTO_KEY, JSON.stringify(c)); }
+function blankCrypto(){ return { btc:0, eth:0, sol:0, txHistory:[] }; }
+function ensureCrypto(){ let c=getCrypto(); if(!c){ c=blankCrypto(); saveCrypto(c); } return c; }
+
+// Live price state
+let prices = { btc:{ aud:0, change24h:0, mcap:0, vol:0 }, eth:{ aud:0, change24h:0, mcap:0, vol:0 }, sol:{ aud:0, change24h:0, mcap:0, vol:0 } };
+let pricesFetched = false;
+
+// USD formatter for large numbers
+function fmtUSD(n){ if(n>=1e9) return '$'+( n/1e9).toFixed(2)+'B'; if(n>=1e6) return '$'+(n/1e6).toFixed(2)+'M'; return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtCoin(n,dec){ return n.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+
+async function fetchPrices(){
+  try {
+    const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana&order=market_cap_desc&per_page=3&sparkline=false&price_change_percentage=24h';
+    const res = await fetch(url);
+    const data = await res.json();
+    data.forEach(coin => {
+      const key = coin.id === 'bitcoin' ? 'btc' : coin.id === 'ethereum' ? 'eth' : 'sol';
+      prices[key] = {
+        aud: coin.current_price || 0,
+        change24h: coin.price_change_percentage_24h || 0,
+        mcap: coin.market_cap || 0,
+        vol: coin.total_volume || 0,
+      };
+    });
+    pricesFetched = true;
+  } catch(e) {
+    // CoinGecko may be rate-limited; use fallback demo prices
+    prices = {
+      btc: { aud: 148250, change24h: 2.34, mcap: 2920000000000, vol: 58000000000 },
+      eth: { aud:  5420,  change24h: 1.87, mcap:  650000000000, vol: 28000000000 },
+      sol: { aud:   248,  change24h: 3.12, mcap:  120000000000, vol:  8000000000 },
+    };
+    pricesFetched = true;
+  }
+  updateCryptoUI();
+}
+
+function updateCryptoUI(){
+  if(!pricesFetched) return;
+  const c = ensureCrypto();
+
+  const audVals = {
+    btc: c.btc * prices.btc.aud,
+    eth: c.eth * prices.eth.aud,
+    sol: c.sol * prices.sol.aud,
+  };
+  const totalAud = audVals.btc + audVals.eth + audVals.sol;
+
+  // ---- Ticker bar ----
+  ['btc','eth','sol'].forEach(k => {
+    const p = prices[k];
+    const priceEl = document.getElementById(k+'-price-display');
+    const changeEl = document.getElementById(k+'-change-display');
+    if(priceEl) priceEl.textContent = fmtUSD(p.aud);
+    if(changeEl){
+      const up = p.change24h >= 0;
+      changeEl.textContent = (up?'▲ +':'▼ ') + Math.abs(p.change24h).toFixed(2)+'%';
+      changeEl.className = 'ticker-change ' + (up?'up':'down');
+    }
+  });
+
+  const ptEl = document.getElementById('portfolio-total-display');
+  if(ptEl) ptEl.textContent = fmtUSD(totalAud);
+
+  // ---- Wallet cards ----
+  const btcBal = document.getElementById('btc-balance-display');
+  const ethBal = document.getElementById('eth-balance-display');
+  const solBal = document.getElementById('sol-balance-display');
+  if(btcBal) btcBal.textContent = fmtCoin(c.btc,8)+' BTC';
+  if(ethBal) ethBal.textContent = fmtCoin(c.eth,6)+' ETH';
+  if(solBal) solBal.textContent = fmtCoin(c.sol,6)+' SOL';
+
+  const btcAud = document.getElementById('btc-aud-display');
+  const ethAud = document.getElementById('eth-aud-display');
+  const solAud = document.getElementById('sol-aud-display');
+  if(btcAud) btcAud.textContent = '≈ ' + fmtUSD(audVals.btc);
+  if(ethAud) ethAud.textContent = '≈ ' + fmtUSD(audVals.eth);
+  if(solAud) solAud.textContent = '≈ ' + fmtUSD(audVals.sol);
+
+  ['btc','eth','sol'].forEach(k => {
+    const el = document.getElementById(k+'-change-card');
+    if(!el) return;
+    const up = prices[k].change24h >= 0;
+    el.textContent = (up?'▲ +':'▼ ') + Math.abs(prices[k].change24h).toFixed(2)+'% (24h)';
+    el.className = 'cc-change '+(up?'up':'down');
+  });
+
+  // ---- Portfolio bars ----
+  if(totalAud > 0){
+    const pctBtc = audVals.btc/totalAud*100;
+    const pctEth = audVals.eth/totalAud*100;
+    const pctSol = audVals.sol/totalAud*100;
+    const bBtc = document.getElementById('ptf-btc-seg');
+    const bEth = document.getElementById('ptf-eth-seg');
+    const bSol = document.getElementById('ptf-sol-seg');
+    if(bBtc) bBtc.style.width = pctBtc+'%';
+    if(bEth) bEth.style.width = pctEth+'%';
+    if(bSol) bSol.style.width = pctSol+'%';
+    const pBtc = document.getElementById('ptf-btc-pct');
+    const pEth = document.getElementById('ptf-eth-pct');
+    const pSol = document.getElementById('ptf-sol-pct');
+    if(pBtc) pBtc.textContent = pctBtc.toFixed(1)+'%';
+    if(pEth) pEth.textContent = pctEth.toFixed(1)+'%';
+    if(pSol) pSol.textContent = pctSol.toFixed(1)+'%';
+  }
+
+  // ---- Portfolio detail ----
+  const pvBtc = document.getElementById('ptf-btc-val');
+  const pvEth = document.getElementById('ptf-eth-val');
+  const pvSol = document.getElementById('ptf-sol-val');
+  if(pvBtc) pvBtc.textContent = 'USD '+fmtUSD(audVals.btc);
+  if(pvEth) pvEth.textContent = 'USD '+fmtUSD(audVals.eth);
+  if(pvSol) pvSol.textContent = 'USD '+fmtUSD(audVals.sol);
+  const phBtc = document.getElementById('ptf-btc-holdings');
+  const phEth = document.getElementById('ptf-eth-holdings');
+  const phSol = document.getElementById('ptf-sol-holdings');
+  if(phBtc) phBtc.textContent = fmtCoin(c.btc,8)+' BTC';
+  if(phEth) phEth.textContent = fmtCoin(c.eth,6)+' ETH';
+  if(phSol) phSol.textContent = fmtCoin(c.sol,6)+' SOL';
+
+  // ETH gas estimate (mock)
+  const gasEl = document.getElementById('eth-gas');
+  if(gasEl) gasEl.textContent = Math.floor(18+Math.random()*12)+' Gwei';
+
+  // Market insights
+  ['btc','eth','sol'].forEach(k => {
+    const mcEl = document.getElementById(k+'-mcap');
+    const vEl  = document.getElementById(k+'-vol');
+    if(mcEl) mcEl.textContent = fmtUSD(prices[k].mcap);
+    if(vEl)  vEl.textContent  = fmtUSD(prices[k].vol);
+  });
+
+  // Send available
+  updateSendMax();
+  renderCryptoHistory();
+}
+
+// ---- Crypto tab switching ----
+function switchCryptoTab(tab){
+  ['portfolio','receive','send','history'].forEach(t => {
+    document.getElementById('ctab-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('ctx-'+t).classList.toggle('active', t===tab);
+  });
+  if(tab==='history') renderCryptoHistory();
+}
+
+// ---- Copy address ----
+function copyAddr(addr, coin){
+  navigator.clipboard.writeText(addr).then(()=>{
+    showToast(coin+' address copied to clipboard','📋');
+  }).catch(()=>{
+    showToast(addr.slice(0,20)+'… (copy manually)','📋');
+  });
+}
+
+// ---- Send flow ----
+function updateSendMax(){
+  const coin = document.getElementById('send-coin')?.value;
+  if(!coin) return;
+  const c = ensureCrypto();
+  const bal = c[coin] || 0;
+  const el = document.getElementById('send-available');
+  const lbl = document.getElementById('send-coin-label');
+  if(el) el.textContent = fmtCoin(bal, coin==='btc'?8:6)+' '+coin.toUpperCase();
+  if(lbl) lbl.textContent = coin.toUpperCase();
+  updateSendAud();
+  updateFeeEstimate(coin);
+}
+function updateSendAud(){
+  const coin = document.getElementById('send-coin')?.value;
+  const amount = parseFloat(document.getElementById('send-amount')?.value) || 0;
+  const aud = amount * (prices[coin]?.aud || 0);
+  const el = document.getElementById('send-aud-equiv');
+  if(el) el.textContent = fmtUSD(aud);
+  updateFeeEstimate(coin);
+}
+function updateFeeEstimate(coin){
+  const el = document.getElementById('send-fee-display');
+  if(!el) return;
+  const amount = parseFloat(document.getElementById('send-amount')?.value) || 0;
+  const fees = {
+    btc: { label:'~250 sat/vB', est:'≈ 0.00002250 BTC', time:'~10 min' },
+    eth: { label:(Math.floor(18+Math.random()*12))+' Gwei base', est:'≈ 0.0008 ETH', time:'~15 sec' },
+    sol: { label:'5,000 lamports', est:'≈ 0.000005 SOL', time:'<1 sec' },
+  };
+  if(!fees[coin]) return;
+  const f = fees[coin];
+  el.innerHTML = `<span style="color:rgba(212,232,194,.7)">${f.label}</span> · <span style="color:rgba(212,232,194,.5)">${f.est}</span> · <span style="color:#6ef08a">ETA: ${f.time}</span>`;
+}
+
+function submitCryptoSend(){
+  const coin = document.getElementById('send-coin').value;
+  const addr = document.getElementById('send-address').value.trim();
+  const amount = parseFloat(document.getElementById('send-amount').value);
+  const c = ensureCrypto();
+
+  if(!addr){ showToast('Enter a recipient address','⚠️'); return; }
+  if(isNaN(amount) || amount <= 0){ showToast('Enter a valid amount','⚠️'); return; }
+  if(amount > c[coin]){ showToast('Insufficient '+coin.toUpperCase()+' balance','⚠️'); return; }
+
+  // Basic address validation
+  if(coin==='btc' && !addr.startsWith('bc1') && !addr.startsWith('1') && !addr.startsWith('3')){ showToast('Invalid Bitcoin address format','⚠️'); return; }
+  if(coin==='eth' && !addr.startsWith('0x')){ showToast('Invalid Ethereum address format','⚠️'); return; }
+
+  c[coin] -= amount;
+  const txid = '0x'+[...Array(16)].map(()=>Math.floor(Math.random()*16).toString(16)).join('');
+  c.txHistory.unshift({
+    type:'send', coin, amount, addr,
+    audVal: amount * (prices[coin]?.aud||0),
+    txid, date: new Date().toLocaleString('en-US'), status:'Confirmed'
+  });
+  saveCrypto(c);
+
+  // Also push an alert to the member app
+  if(S && S.alerts){
+    S.alerts.unshift({
+      id:Date.now(), type:'info',
+      title: coin.toUpperCase()+' sent',
+      msg: `${fmtCoin(amount, coin==='btc'?8:6)} ${coin.toUpperCase()} sent to ${addr.slice(0,16)}…`,
+      date:'Just now', read:false
+    });
+    saveState(S);
+  }
+
+  document.getElementById('send-address').value = '';
+  document.getElementById('send-amount').value = '';
+  showToast(`${fmtCoin(amount, coin==='btc'?8:6)} ${coin.toUpperCase()} sent! TXID: ${txid.slice(0,18)}…`,'✅');
+  updateCryptoUI();
+}
+
+function renderCryptoHistory(){
+  const wrap = document.getElementById('crypto-tx-history');
+  if(!wrap) return;
+  const c = ensureCrypto();
+  if(!c.txHistory || c.txHistory.length === 0){
+    wrap.innerHTML = '<div class="empty-state"><div class="ic">🕐</div><h4>No crypto transactions yet</h4><p>Send or receive crypto to see your on-chain history here</p></div>';
+    return;
+  }
+  const coinColors = {btc:'#f7931a', eth:'#8aa4f4', sol:'#c084fc'};
+  const coinIcons = {btc:'₿', eth:'Ξ', sol:'◎'};
+  wrap.innerHTML = c.txHistory.map(tx => `
+    <div class="crypto-tx-row">
+      <div class="crypto-tx-icon" style="background:rgba(${tx.type==='receive'?'110,240,138':'255,112,112'},.12)">${tx.type==='receive'?'📥':'📤'}</div>
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:600;color:var(--forest-dark)">${tx.type==='receive'?'Received':'Sent'} ${tx.coin.toUpperCase()}</div>
+        <div style="font-size:11px;color:#6b7c6b;margin-top:1px">${tx.date} · TXID: ${tx.txid.slice(0,18)}…</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;font-weight:600;color:${coinColors[tx.coin]}">${tx.type==='receive'?'+':'-'}${fmtCoin(tx.amount, tx.coin==='btc'?8:6)} ${tx.coin.toUpperCase()}</div>
+        <div style="font-size:11px;color:#6b7c6b">${fmtUSD(tx.audVal||0)}</div>
+        <span class="badge badge-green" style="font-size:10px">${tx.status}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Fetch prices on load, then every 60 seconds
+fetchPrices();
+setInterval(fetchPrices, 60000);
+
+// ============================================================
+//  HELP & SUPPORT — AI CHAT + FAQ
+// ============================================================
+const AI_RESPONSES = {
+  'crypto deposit': `Great question! To fund your Global Farm Trust account via crypto:\n\n• **Bitcoin (BTC):** bc1qc4mshly8zvyu3hj5yprf2tcuhs45qraw8xyj50\n• **USDT (TRC-20):** THMbzqFM8KNsrNMynjywBPvjKSJwN4vfzo\n• **Ethereum (ETH):** 0x8f8A813691E9aA95dbf969956a5cDeFB3d7800e3\n• **Solana (SOL):** F22rw14LyJWBc6uPyFaNXbVdbik4HincjzjDzQfiUSci\n\nYour deposit will be converted to USD at the live rate and credited to your USD Savings Account within 1–3 confirmations. You can also find these addresses on every page of your banking dashboard.`,
+  'loan rate': `Global Farm Trust's current farm loan rates are:\n\n• **Starter Farm Loan:** from 6.25% p.a. (up to $150,000, 25-year term)\n• **Equipment Finance:** from 7.10% p.a. (up to $80,000, 7-year term)\n• **Livestock Loan:** from 6.80% p.a. (up to $50,000, 5-year term)\n• **Plant Nursery Loan:** from 5.99% p.a. (up to $150,000, 10-year term)\n\nAll rates are subject to credit assessment. Head to Farm Loans in the sidebar to apply.`,
+  'grant': `Global Farm Trust offers several grant programs:\n\n• **United Statesn Farming Grant 2026** (Dept. Agriculture) — up to $5,000\n• **Native Vegetation Stewardship** (USA Govt) — up to $10,000\n• **Sustainable Irrigation Grant** — up to $25,000\n• **Wildlife Corridor Fund** (FCU internal) — up to $8,000\n\nGo to Grants & Aid in the sidebar to apply. Most grants are non-repayable!`,
+  'balance': `I can see your account balances are shown on your Dashboard and Accounts page. If something looks incorrect:\n\n1. Refresh the page\n2. Check your recent transactions\n3. If the issue persists, call us on **+1 800 327-8278** or email **support@globalfarmtrust.com.au**\n\nOur team can investigate and correct any discrepancies within 1 business day.`,
+  'default': `Thanks for your message! Here are some things I can help with:\n\n• Account balances and transactions\n• Crypto deposit addresses\n• Farm loan rates and eligibility\n• Grant applications\n• Card freezing and limits\n• Wildlife Credits\n\nFor urgent matters, call **+1 800 327-8278** (Mon–Fri 8am–6pm EST). Would you like to be connected to a live agent?`
+};
+
+const FAQ_DATA = [
+  { q: 'How do I deposit crypto to my account?', a: 'Use any of our 4 crypto deposit addresses (BTC, USDT TRC-20, ETH, SOL) visible on every page of your dashboard. Funds are converted to USD at the live rate and credited within 1–3 confirmations.' },
+  { q: 'What is the minimum crypto deposit?', a: 'BTC: 0.0001 BTC · USDT: 10 USDT · ETH: 0.001 ETH · SOL: 0.1 SOL. Deposits below minimums will still be received but may not be processed automatically.' },
+  { q: 'How do I apply for a Farm Loan?', a: 'Click Farm Loans in the sidebar, select your product, and click Apply. A lending specialist will contact you within 2 business days to progress your application.' },
+  { q: 'Are my deposits protected?', a: 'Yes. Deposits up to $250,000 per account holder are protected by the United Statesn Government FDIC Deposit Insurance, administered by FDIC.' },
+  { q: 'How do I earn Wildlife Credits?', a: 'Go to Wildlife Care Fund in the sidebar and claim points for activities like native tree planting (50 pts), bird box installation (30 pts), frog pond construction (80 pts), and more.' },
+  { q: 'How do I freeze my virtual card?', a: 'Go to Virtual Cards in the sidebar and click Freeze next to the card you want to suspend. You can unfreeze at any time instantly.' },
+];
+
+let supportMode = 'ai';
+let chatTyping = false;
+
+function switchSupportMode(mode) {
+  supportMode = mode;
+  const aiBtn = document.getElementById('mode-ai');
+  const liveBtn = document.getElementById('mode-live');
+  const liveMsg = document.getElementById('live-agent-msg');
+  if(!aiBtn || !liveBtn) return;
+  if(mode === 'ai') {
+    aiBtn.style.background = 'var(--moss)'; aiBtn.style.color = 'white'; aiBtn.style.border = 'none';
+    liveBtn.style.background = 'transparent'; liveBtn.style.color = 'rgba(212,232,194,.6)'; liveBtn.style.border = '1px solid rgba(255,255,255,.15)';
+    if(liveMsg) liveMsg.style.display = 'none';
+  } else {
+    liveBtn.style.background = '#4a9080'; liveBtn.style.color = 'white'; liveBtn.style.border = 'none';
+    aiBtn.style.background = 'transparent'; aiBtn.style.color = 'rgba(212,232,194,.6)'; aiBtn.style.border = '1px solid rgba(255,255,255,.15)';
+    if(liveMsg) liveMsg.style.display = 'block';
+    // Scroll to bottom
+    const msgs = document.getElementById('chat-messages');
+    if(msgs) msgs.scrollTop = msgs.scrollHeight;
+  }
+}
+
+function sendQuickReply(text) {
+  const input = document.getElementById('chat-input');
+  if(input) { input.value = text; sendChatMsg(); }
+}
+
+function appendMsg(text, isUser, sender) {
+  const msgs = document.getElementById('chat-messages');
+  if(!msgs) return;
+  const div = document.createElement('div');
+  div.style.cssText = `align-self:${isUser?'flex-end':'flex-start'};max-width:82%;animation:fadeUp .3s ease`;
+  const bubble = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>').replace(/\\n/g,'<br>');
+  div.innerHTML = `
+    <div style="background:${isUser?'rgba(90,122,58,.3)':'rgba(255,255,255,.1)'};border-radius:${isUser?'14px 14px 4px 14px':'14px 14px 14px 4px'};padding:11px 14px;font-size:13px;color:var(--mist);line-height:1.55;border:1px solid ${isUser?'rgba(90,122,58,.25)':'rgba(255,255,255,.06)'}">${bubble}</div>
+    <div style="font-size:10px;color:rgba(212,232,194,.3);margin-top:3px;${isUser?'text-align:right;margin-right:4px':'margin-left:4px'}">${sender} · Just now</div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chat-messages');
+  if(!msgs) return;
+  const dot = document.createElement('div');
+  dot.id = 'typing-indicator';
+  dot.style.cssText = 'align-self:flex-start;';
+  dot.innerHTML = `<div style="background:rgba(255,255,255,.08);border-radius:14px 14px 14px 4px;padding:10px 16px;display:flex;gap:5px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:rgba(212,232,194,.4);animation:pulseDot 1s .0s infinite ease"></span><span style="width:6px;height:6px;border-radius:50%;background:rgba(212,232,194,.4);animation:pulseDot 1s .2s infinite ease"></span><span style="width:6px;height:6px;border-radius:50%;background:rgba(212,232,194,.4);animation:pulseDot 1s .4s infinite ease"></span></div>`;
+  msgs.appendChild(dot);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing-indicator');
+  if(el) el.remove();
+}
+
+function getAIResponse(msg) {
+  const m = msg.toLowerCase();
+  if(m.includes('crypto') || m.includes('deposit') || m.includes('bitcoin') || m.includes('usdt') || m.includes('eth') || m.includes('sol')) return AI_RESPONSES['crypto deposit'];
+  if(m.includes('loan') || m.includes('rate') || m.includes('borrow') || m.includes('interest')) return AI_RESPONSES['loan rate'];
+  if(m.includes('grant') || m.includes('funding') || m.includes('government')) return AI_RESPONSES['grant'];
+  if(m.includes('balance') || m.includes('wrong') || m.includes('incorrect') || m.includes('missing')) return AI_RESPONSES['balance'];
+  return AI_RESPONSES['default'];
+}
+
+function sendChatMsg() {
+  const input = document.getElementById('chat-input');
+  if(!input) return;
+  const text = input.value.trim();
+  if(!text || chatTyping) return;
+  input.value = '';
+
+  const userName = (S && S.user) ? S.user.name.split(' ')[0] : 'You';
+  appendMsg(text, true, userName);
+
+  if(supportMode === 'live') {
+    chatTyping = true;
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      chatTyping = false;
+      appendMsg("Thanks for your message! A live agent will respond shortly. Average wait time is under 2 minutes. In the meantime, is there anything our AI assistant Wally can help you with?", false, 'Sarah (Live Agent)');
+    }, 2000 + Math.random() * 1500);
+  } else {
+    chatTyping = true;
+    showTyping();
+    const response = getAIResponse(text);
+    const delay = 800 + text.length * 12 + Math.random() * 600;
+    setTimeout(() => {
+      hideTyping();
+      chatTyping = false;
+      appendMsg(response, false, '🤖 Wally (AI)');
+      document.getElementById('quick-replies').style.display = 'none';
+    }, Math.min(delay, 3000));
+  }
+}
+
+// Render FAQ
+function renderFAQ() {
+  const el = document.getElementById('faq-list');
+  if(!el || el.innerHTML !== '') return;
+  el.innerHTML = FAQ_DATA.map((item, i) => `
+    <div style="border:1px solid #e8f0e0;border-radius:10px;overflow:hidden;margin-bottom:4px">
+      <button onclick="toggleFAQ(${i})" style="width:100%;text-align:left;padding:12px 14px;background:#fafdf5;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--forest-dark);display:flex;justify-content:space-between;align-items:center">
+        ${item.q} <span id="faq-arrow-${i}" style="font-size:12px;transition:transform .2s">▼</span>
+      </button>
+      <div id="faq-body-${i}" style="display:none;padding:12px 14px;font-size:12.5px;color:#6b7c6b;line-height:1.6;background:white;border-top:1px solid #e8f0e0">${item.a}</div>
+    </div>
+  `).join('');
+}
+
+function toggleFAQ(i) {
+  const body = document.getElementById('faq-body-'+i);
+  const arrow = document.getElementById('faq-arrow-'+i);
+  if(!body) return;
+  const open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  if(arrow) arrow.style.transform = open ? '' : 'rotate(180deg)';
+}
+
+// FAQ init handled inside showPage above
+
+</script>
+</body>
+</html>
